@@ -14,5 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('scan');
 });
+
+Route::post('/import', ['as' => 'import', 'uses' => 'App\Http\Controllers\OCRController@scan']);
