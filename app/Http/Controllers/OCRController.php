@@ -156,6 +156,8 @@ class OCRController extends Controller
             )
         );
     } catch (Throwable $e) {
+        unlink($filepath);
+        Storage::disk('local')->deleteDirectory($key);
 
         $elapsed = microtime(true) - $time_start;
         error_log('Error Finish : ' . $elapsed . 'ms');
