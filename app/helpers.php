@@ -32,7 +32,7 @@ if (! function_exists('parseResult')) {
                 $text = strtolower($text);
 
                 if(isset($item['Geometry']) && isset($item['Geometry']['BoundingBox']) && isset($item['Geometry']['BoundingBox']['Top'])) {
-                    if($item['Geometry']['BoundingBox']['Top'] < 0.9) {
+                    if($item['Geometry']['BoundingBox']['Top'] < 0.85) {
                         continue;
                     }
                 } else {
