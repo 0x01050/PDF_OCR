@@ -100,6 +100,8 @@ class OCRController extends Controller
 
                         parseResult($nextResult['Blocks'], $pages, $results);
                         $token = $nextResult['NextToken'];
+
+                        usleep(100 * 1000);
                     }
                 }
                 break;
