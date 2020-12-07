@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 use Aws\Credentials\Credentials;
 use Aws\S3\S3Client;
 use Aws\Textract\TextractClient;
+
+use setasign\Fpdi\Tcpdf\Fpdi;
 
 class OCRController extends Controller
 {
@@ -38,7 +41,9 @@ class OCRController extends Controller
             'Key'        => $key,
             'SourceFile' => $filepath,
         ));
+
         $path = $result['ObjectURL'];
+        error_log($path);
 
         $elapsed = microtime(true) - $time_start;
         error_log('Upload to S3 Finish : ' . $elapsed . 'ms');
@@ -60,6 +65,16 @@ class OCRController extends Controller
             'FeatureTypes' => array('TABLES')
         ));
         $jobId = $result['JobId'];
+
+        $pages = [];
+        $results = array(
+            'Form 1009' => [],
+            'Borrower Authorization' => [],
+            'Counseling Certificate' => [],
+            'Anti-Churning Form' => [],
+            'GFE' => []
+        );
+
         while(true) {
             $result = $textract->getDocumentAnalysis(array(
                 'JobId' => $jobId
@@ -71,15 +86,6 @@ class OCRController extends Controller
             {
                 if($jobStatus == 'SUCCEEDED')
                 {
-                    $pages = [];
-                    $results = array(
-                        'Form 1009' => [],
-                        'Borrower Authorization' => [],
-                        'Counseling Certificate' => [],
-                        'Anti-Churning Form' => [],
-                        'GFE' => []
-                    );
-
                     parseResult($result['Blocks'], $pages, $results);
 
                     $token = $result['NextToken'];
@@ -93,9 +99,6 @@ class OCRController extends Controller
                         parseResult($nextResult['Blocks'], $pages, $results);
                         $token = $nextResult['NextToken'];
                     }
-
-                    // Scan Finished
-                    error_log(json_encode($results));
                 }
                 break;
             }
@@ -107,6 +110,7 @@ class OCRController extends Controller
         ));
 
         if($jobStatus != 'SUCCEEDED') {
+            unlink($filepath);
 
             $elapsed = microtime(true) - $time_start;
             error_log('Failed Finish : ' . $elapsed . 'ms');
@@ -117,6 +121,24 @@ class OCRController extends Controller
                 )
             );
         }
+
+        // Scan Finished
+        error_log(json_encode($results));
+
+        Storage::disk('local')->makeDirectory($key);
+        foreach($results as $type => $pagenums) {
+            if(empty($pagenums))
+                continue;
+            $pdf = new Fpdi();
+            $pdf->setSourceFile($filepath);
+            foreach($pagenums as $pagenum) {
+                $templateId = $pdf->importPage($pagenum);
+                $pdf->AddPage();
+                $pdf->useTemplate($templateId);
+            }
+            $pdf->Output(storage_path('app/' . $key . '/' . $type . '.pdf'), 'F');
+        }
+        unlink($filepath);
 
         $elapsed = microtime(true) - $time_start;
         error_log('Success Finish : ' . $elapsed . 'ms');

@@ -179,6 +179,11 @@ return [
          * AWS Provider
          */
         Aws\Laravel\AwsServiceProvider::class,
+
+        /*
+         * Zip Provider
+         */
+        ZanySoft\Zip\ZipServiceProvider::class,
     ],
 
     /*
@@ -232,6 +237,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
         'AWS' => Aws\Laravel\AwsFacade::class,
+        'Zip' => ZanySoft\Zip\ZipFacade::class,
     ],
 
 ];
