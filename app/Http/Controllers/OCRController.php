@@ -100,14 +100,12 @@ class OCRController extends Controller
 
                         parseResult($nextResult['Blocks'], $pages, $results);
                         $token = $nextResult['NextToken'];
-
-                        usleep(100 * 1000);
                     }
                 }
                 break;
             }
 
-            usleep(300 * 1000);
+            usleep(100 * 1000);
         }
 
         $s3->deleteObject(array(
