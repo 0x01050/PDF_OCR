@@ -32,8 +32,8 @@
         <div class="relative flex flex-vertical items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center sm:pt-0">
             <input type="hidden" id="leads_token" value="<?php echo csrf_token(); ?>">
             <input type='file' name='leads' id="leads_upload" data-url="{{ route('import') }}"/>
-            <br/>
-            <label id="upload_progress"> </label>
+            <label id="upload_progress">Ready for scan</label>
+            <a id="download_link" href="" style="display: none;">Download Result</a>
         </div>
 
 
@@ -48,6 +48,7 @@
                 $leads.fileupload({
                     dataType: "json",
                     add: function(e, data) {
+                        $("#download_link").css('display', 'none');
                         $("#upload_progress").text("0% ...");
                         data.submit();
                     },
@@ -61,6 +62,10 @@
                     },
                     done: function(e, data) {
                         $("#upload_progress").text(data.result.message);
+                        if(data.result.result == 'success') {
+                            $("#download_link").css('display', 'inherit');
+                            $("#download_link").attr('href', data.result.link);
+                        }
                     },
                     fail: function (e, data) {
                         $("#upload_progress").text("Failed");

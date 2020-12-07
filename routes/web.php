@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,3 +19,11 @@ Route::get('/', function () {
 });
 
 Route::post('/import', ['as' => 'import', 'uses' => 'App\Http\Controllers\OCRController@scan']);
+
+Route::get('files/{file_name}', function($file_name = null)
+{
+    $path = storage_path('app/' . $file_name . '.zip');
+    if (file_exists($path)) {
+        return Response::download($path);
+    }
+});

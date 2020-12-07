@@ -14,6 +14,8 @@ use Aws\Textract\TextractClient;
 
 use setasign\Fpdi\Tcpdf\Fpdi;
 
+use ZanySoft\Zip\Zip;
+
 class OCRController extends Controller
 {
   public function scan(Request $request)
@@ -126,6 +128,7 @@ class OCRController extends Controller
         error_log(json_encode($results));
 
         Storage::disk('local')->makeDirectory($key);
+        $zip = Zip::create(storage_path('app/' . $key . '.zip'));
         foreach($results as $type => $pagenums) {
             if(empty($pagenums))
                 continue;
@@ -137,15 +140,19 @@ class OCRController extends Controller
                 $pdf->useTemplate($templateId);
             }
             $pdf->Output(storage_path('app/' . $key . '/' . $type . '.pdf'), 'F');
+            $zip->add(storage_path('app/' . $key . '/' . $type . '.pdf'));
         }
         unlink($filepath);
+        $zip->close();
+        Storage::disk('local')->deleteDirectory($key);
 
         $elapsed = microtime(true) - $time_start;
         error_log('Success Finish : ' . $elapsed . 'ms');
 
         return Response::json(array (
                 'result' => 'success',
-                'message' => 'Scan Success'
+                'message' => 'Scan Success',
+                'link' => '/files/' . $key
             )
         );
     } catch (Throwable $e) {
@@ -154,8 +161,8 @@ class OCRController extends Controller
         error_log('Error Finish : ' . $elapsed . 'ms');
 
         return Response::json(array (
-            'result' => 'error',
-            'message' => 'Failed : ' . $e->getMessage()
+                'result' => 'error',
+                'message' => 'Failed : ' . $e->getMessage()
             )
         );
     }
