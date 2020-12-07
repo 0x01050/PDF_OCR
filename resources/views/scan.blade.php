@@ -48,7 +48,11 @@
                     },
                     progress: function(e, data) {
                         var progress = parseInt((data.loaded / data.total) * 100, 10);
-                        $("#upload_progress").text(progress + "% ...");
+                        if(progress == 100) {
+                            $("#upload_progress").text("Scanning ...");
+                        } else {
+                            $("#upload_progress").text(progress + "% Uploaded ...");
+                        }
                     },
                     done: function(e, data) {
                         $("#upload_progress").text(data.result.message);

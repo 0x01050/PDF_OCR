@@ -24,6 +24,7 @@ class OCRController extends Controller
     $filepath = storage_path('app/' . $filepath);
 
     try {
+        $time_start = microtime(true);
 
         $provider = new Credentials(Config::get('aws.credentials.key'), Config::get('aws.credentials.secret'));
         $s3 = new S3Client([
@@ -38,6 +39,10 @@ class OCRController extends Controller
             'SourceFile' => $filepath,
         ));
         $path = $result['ObjectURL'];
+
+        $elapsed = microtime(true) - $time_start;
+        error_log('Upload to S3 Finish : ' . $elapsed . 'ms');
+        $time_start = microtime(true);
 
         $textract = new TextractClient(array(
             'version'     => 'latest',
@@ -55,7 +60,6 @@ class OCRController extends Controller
             'FeatureTypes' => array('TABLES')
         ));
         $jobId = $result['JobId'];
-        $time_start = microtime(true);
         while(true) {
             $result = $textract->getDocumentAnalysis(array(
                 'JobId' => $jobId
@@ -67,7 +71,17 @@ class OCRController extends Controller
             {
                 if($jobStatus == 'SUCCEEDED')
                 {
-                    $results = $result['Blocks'];
+                    $pages = [];
+                    $results = array(
+                        'Form 1009' => [],
+                        'Borrower Authorization' => [],
+                        'Counseling Certificate' => [],
+                        'Anti-Churning Form' => [],
+                        'GFE' => []
+                    );
+
+                    parseResult($result['Blocks'], $pages, $results);
+
                     $token = $result['NextToken'];
                     while ($token != null)
                     {
@@ -75,10 +89,13 @@ class OCRController extends Controller
                             'JobId' => $jobId,
                             'NextToken' => $token
                         ));
-                        $results = array_merge($results, $nextResult['Blocks']);
+
+                        parseResult($nextResult['Blocks'], $pages, $results);
                         $token = $nextResult['NextToken'];
                     }
+
                     // Scan Finished
+                    error_log(json_encode($results));
                 }
                 break;
             }
@@ -90,6 +107,10 @@ class OCRController extends Controller
         ));
 
         if($jobStatus != 'SUCCEEDED') {
+
+            $elapsed = microtime(true) - $time_start;
+            error_log('Failed Finish : ' . $elapsed . 'ms');
+
             return Response::json(array (
                     'result' => 'error',
                     'message' => 'Scan ' . $jobStatus
@@ -98,7 +119,7 @@ class OCRController extends Controller
         }
 
         $elapsed = microtime(true) - $time_start;
-        error_log('Run Finish : ' . $elapsed . 'ms');
+        error_log('Success Finish : ' . $elapsed . 'ms');
 
         return Response::json(array (
                 'result' => 'success',
@@ -106,6 +127,10 @@ class OCRController extends Controller
             )
         );
     } catch (Throwable $e) {
+
+        $elapsed = microtime(true) - $time_start;
+        error_log('Error Finish : ' . $elapsed . 'ms');
+
         return Response::json(array (
             'result' => 'error',
             'message' => 'Failed : ' . $e->getMessage()
