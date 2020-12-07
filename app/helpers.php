@@ -31,9 +31,17 @@ if (! function_exists('parseResult')) {
                 $text = preg_replace('/\s+/', '', $text);
                 $text = strtolower($text);
 
+                if(isset($item['Geometry']) && isset($item['Geometry']['BoundingBox']) && isset($item['Geometry']['BoundingBox']['Top'])) {
+                    if($item['Geometry']['BoundingBox']['Top'] < 0.9) {
+                        continue;
+                    }
+                } else {
+                    continue;
+                }
+
                 if(strpos($text, 'fanniemae') !== false) { // Form 1009
                     addTo($pages[$item['Id']], $results['Form 1009']);
-                } else if(strpos($text, 'borrowercertification') !== false) { // Borrower Authorization
+                } else if(strpos($text, 'borrowercertification') !== false || strpos($text, 'barrowercertification') !== false) { // Borrower Authorization
                     addTo($pages[$item['Id']], $results['Borrower Authorization']);
                 } else if(strpos($text, 'hud-92002') !== false) { // Counseling Certificate
                     addTo($pages[$item['Id']], $results['Counseling Certificate']);
