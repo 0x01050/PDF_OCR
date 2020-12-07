@@ -49,7 +49,6 @@ class OCRController extends Controller
 
         $elapsed = microtime(true) - $time_start;
         error_log('Upload to S3 Finish : ' . $elapsed . 'ms');
-        $time_start = microtime(true);
 
         $textract = new TextractClient(array(
             'version'     => 'latest',
@@ -82,7 +81,6 @@ class OCRController extends Controller
                 'JobId' => $jobId
             ));
             $jobStatus = $result['JobStatus'];
-            $elapsed = microtime(true) - $time_start;
 
             if($jobStatus == 'SUCCEEDED' || $jobStatus == 'FAILED')
             {
@@ -101,13 +99,13 @@ class OCRController extends Controller
                         parseResult($nextResult['Blocks'], $pages, $results);
                         $token = $nextResult['NextToken'];
 
-                        usleep(100 * 1000);
+                        usleep(200 * 1000);
                     }
                 }
                 break;
             }
 
-            usleep(100 * 1000);
+            usleep(200 * 1000);
         }
 
         $s3->deleteObject(array(
@@ -156,7 +154,8 @@ class OCRController extends Controller
         return Response::json(array (
                 'result' => 'success',
                 'message' => 'Scan Success',
-                'link' => '/files/' . $key
+                'link' => '/files/' . $key,
+                'time' => $elapsed
             )
         );
     } catch (Throwable $e) {
