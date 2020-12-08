@@ -74,7 +74,6 @@ class OCRController extends Controller
             'Anti-Churning Form' => [],
             'GFE' => [],
             'Driver\'s License' => [],
-            'Social Security Card' => [],
             'Social Security Income' => [],
             'Monthly Reverse Mortgage Statement' => [],
             'HUD 90900A' => [],
