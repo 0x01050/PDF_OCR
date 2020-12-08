@@ -63,18 +63,25 @@ class OCRController extends Controller
                     'Name' => $key
                 )
             ),
-            'FeatureTypes' => array('TABLES')
+            'FeatureTypes' => array('FORMS')
         ));
         $jobId = $result['JobId'];
 
-        $pages = [];
         $results = array(
             'Form 1009' => [],
             'Borrower Authorization' => [],
             'Counseling Certificate' => [],
             'Anti-Churning Form' => [],
-            'GFE' => []
+            'GFE' => [],
+            'Driver\'s License' => [],
+            'Social Security Card' => [],
+            'Social Security Award Letter' => [],
+            'Social Security 1099' => [],
+            'Monthly Reverse Mortgage Statement' => [],
+            'HUD 90900A' => [],
         );
+        $words = [];
+        $officer = '';
 
         while(true) {
             $result = $textract->getDocumentAnalysis(array(
@@ -86,7 +93,7 @@ class OCRController extends Controller
             {
                 if($jobStatus == 'SUCCEEDED')
                 {
-                    parseResult($result['Blocks'], $pages, $results);
+                    parseResult($result['Blocks'], $results, $words, $officer);
 
                     $token = $result['NextToken'];
                     while ($token != null)
@@ -96,7 +103,7 @@ class OCRController extends Controller
                             'NextToken' => $token
                         ));
 
-                        parseResult($nextResult['Blocks'], $pages, $results);
+                        parseResult($nextResult['Blocks'], $results, $words, $officer);
                         $token = $nextResult['NextToken'];
 
                         usleep(200 * 1000);
@@ -131,13 +138,13 @@ class OCRController extends Controller
 
         Storage::disk('local')->makeDirectory($key);
         $zip = Zip::create(storage_path('app/' . $key . '.zip'));
-        foreach($results as $type => $pagenums) {
-            if(empty($pagenums))
+        foreach($results as $type => $pages) {
+            if(empty($pages))
                 continue;
             $pdf = new Fpdi();
             $pdf->setSourceFile($filepath);
-            foreach($pagenums as $pagenum) {
-                $templateId = $pdf->importPage($pagenum);
+            foreach($pages as $page) {
+                $templateId = $pdf->importPage($page);
                 $pdf->AddPage();
                 $pdf->useTemplate($templateId);
             }
@@ -155,6 +162,7 @@ class OCRController extends Controller
                 'result' => 'success',
                 'message' => 'Scan Success',
                 'link' => '/files/' . $key,
+                'officer' => $officer,
                 'time' => $elapsed
             )
         );

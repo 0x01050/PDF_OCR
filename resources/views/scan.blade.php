@@ -65,6 +65,7 @@
                         if(data.result.result == 'success') {
                             $("#download_link").css('display', 'inherit');
                             $("#download_link").attr('href', data.result.link);
+                            $("#upload_progress").text('Loan Officer : ' + data.result.officer);
                         }
                     },
                     fail: function (e, data) {
