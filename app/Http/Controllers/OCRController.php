@@ -76,7 +76,7 @@ class OCRController extends Controller
             'Driver\'s License' => [],
             'Social Security Income' => [],
             'Monthly Reverse Mortgage Statement' => [],
-            'HUD 90900A' => [],
+            'HUD 92900A' => [],
         );
         $words = [];
         $officer = '';

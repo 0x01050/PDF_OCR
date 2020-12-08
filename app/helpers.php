@@ -42,8 +42,8 @@ if (! function_exists('parseResult')) {
                             addTo($item['Page'], $results['Anti-Churning Form']);
                         } else if(strpos($text, 'goodfaithestimate') !== false) { // GFE
                             addTo($item['Page'], $results['GFE']);
-                        } else if(strpos($text, 'hud-92900a') !== false || strpos($text, 'hud-92900-a') !== false) { // HUD 90900A
-                            addTo($item['Page'], $results['HUD 90900A']);
+                        } else if(strpos($text, 'hud-92900a') !== false || strpos($text, 'hud-92900-a') !== false) { // HUD 92900A
+                            addTo($item['Page'], $results['HUD 92900A']);
                         }
                     }
                     if($top < 0.15) {
