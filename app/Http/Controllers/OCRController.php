@@ -75,8 +75,7 @@ class OCRController extends Controller
             'GFE' => [],
             'Driver\'s License' => [],
             'Social Security Card' => [],
-            'Social Security Award Letter' => [],
-            'Social Security 1099' => [],
+            'Social Security Income' => [],
             'Monthly Reverse Mortgage Statement' => [],
             'HUD 90900A' => [],
         );

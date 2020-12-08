@@ -23,7 +23,7 @@ if (! function_exists('parseResult')) {
             if(!isset($item['Page']))
                 $item['Page'] = 0;
 
-            if(isset($item['Text'])) {
+            if($item['BlockType'] == 'LINE' && isset($item['Text'])) {
                 $text = $item['Text'];
                 $text = preg_replace('/\s+/', '', $text);
                 $text = strtolower($text);
@@ -32,7 +32,7 @@ if (! function_exists('parseResult')) {
                     $top = $item['Geometry']['BoundingBox']['Top'];
 
                     if($top > 0.85) {
-                        if(strpos($text, 'fanniemae') !== false) { // Form 1009
+                        if(strpos($text, 'fanniemaeform1009') !== false) { // Form 1009
                             addTo($item['Page'], $results['Form 1009']);
                         } else if(strpos($text, 'borrowercertification') !== false || strpos($text, 'barrowercertification') !== false) { // Borrower Authorization
                             addTo($item['Page'], $results['Borrower Authorization']);
@@ -49,17 +49,17 @@ if (! function_exists('parseResult')) {
                     if($top < 0.15) {
                         if(strpos($text, 'fanniemae') !== false) { // Form 1009
                             addTo($item['Page'], $results['Form 1009']);
-                        } else if(strpos($text, 'reversemortgage') !== false) { // Monthly Reverse Mortgage Statement
+                        } else if($text == 'monthlyreversemortgagestatement') { // Monthly Reverse Mortgage Statement
                             addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
                         }
                     }
                     {
-                        if(strpos($text, 'driverlicense') !== false || strpos($text, 'driver\'slicense') !== false) { // Driver's License
+                        if($text == 'driverlicense' || $text == 'driver\'slicense') { // Driver's License
                             addTo($item['Page'], $results['Driver\'s License']);
                         } else if(strpos($text, 'beneficiary\'ssocialsecuritynumber') !== false) { // Social Security 1099
-                            addTo($item['Page'], $results['Social Security 1099']);
+                            addTo($item['Page'], $results['Social Security Income']);
                         } else if(strpos($text, 'socialsecuritybenefit') !== false) { // Social Security Award Letter
-                            addTo($item['Page'], $results['Social Security Award Letter']);
+                            addTo($item['Page'], $results['Social Security Income']);
                         }
                     }
                 } else {
