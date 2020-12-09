@@ -13,7 +13,7 @@ if (! function_exists('random_string')) {
 }
 
 if (! function_exists('parseResult')) {
-    function parseResult($blocks, &$results, &$words, &$officer) {
+    function parseResult($blocks, &$results, &$words, &$officer, &$forms) {
         foreach($blocks as $item)
         {
             if(!isset($item['Id']))
@@ -67,36 +67,58 @@ if (! function_exists('parseResult')) {
                 }
             }
 
-            if(in_array($item['Page'], $results['Form 1009'])) {
+            if($item['BlockType'] == 'WORD') {
+                $words[$item['Id']] = $item['Text'];
+            }
 
-                if($item['BlockType'] == 'WORD') {
-                    $words[$item['Id']] = $item['Text'];
+            if($item['BlockType'] == 'KEY_VALUE_SET' && isset($item['EntityTypes'])) {
+
+                if(in_array('KEY', $item['EntityTypes'])) {
+                    $index = array_search('CHILD', array_column($item['Relationships'], 'Type'));
+                    if($index !== false) {
+                        $key = getFullWord($words, $item['Relationships'][$index]['Ids']);
+
+                        $key = preg_replace('/\s+/', '', $key);
+                        $key = strtolower($key);
+
+                        $index = array_search('VALUE', array_column($item['Relationships'], 'Type'));
+                        if($index !== false && !empty($item['Relationships'][$index]['Ids'])) {
+                            $forms[$key . $item['Id']] = $item['Relationships'][$index]['Ids'][0];
+                        }
+                    }
+                }
+                if(in_array('VALUE', $item['EntityTypes'])) {
+                    $index = array_search($item['Id'], $forms);
+                    if(!isset($item['Relationships']) && isset($item['Geometry']) && isset($item['Geometry']['BoundingBox'])) {
+                        $forms[$index] = array(
+                            'Page' => $item['Page'],
+                            'Rect' => $item['Geometry']['BoundingBox']
+                        );
+                    } else {
+                        unset($forms[$index]);
+                    }
                 }
 
-                if($item['BlockType'] == 'KEY_VALUE_SET') {
-                    if(isset($item['EntityTypes']) && isset($item['Relationships'])) {
-                        if(in_array('KEY', $item['EntityTypes'])) {
-                            $index = array_search('CHILD', array_column($item['Relationships'], 'Type'));
-                            if($index !== false) {
-                                $key = getFullWord($words, $item['Relationships'][$index]['Ids']);
-                                error_log('New Key : ' . $key);
+                if(in_array($item['Page'], $results['Form 1009']) && isset($item['Relationships'])) {
+                    if(in_array('KEY', $item['EntityTypes'])) {
+                        $index = array_search('CHILD', array_column($item['Relationships'], 'Type'));
+                        if($index !== false) {
+                            $key = getFullWord($words, $item['Relationships'][$index]['Ids']);
 
-                                $key = preg_replace('/\s+/', '', $key);
-                                $key = strtolower($key);
-                                if(strpos($key, 'loanoriginator\'sname') !== false) {
-                                    $index = array_search('VALUE', array_column($item['Relationships'], 'Type'));
-                                    if($index !== false && !empty($item['Relationships'][$index]['Ids'])) {
-                                        $officer = $item['Relationships'][$index]['Ids'][0];
-                                        error_log('Officer Key : ' . $officer);
-                                    }
+                            $key = preg_replace('/\s+/', '', $key);
+                            $key = strtolower($key);
+                            if(strpos($key, 'loanoriginator\'sname') !== false) {
+                                $index = array_search('VALUE', array_column($item['Relationships'], 'Type'));
+                                if($index !== false && !empty($item['Relationships'][$index]['Ids'])) {
+                                    $officer = $item['Relationships'][$index]['Ids'][0];
                                 }
                             }
                         }
-                        if(in_array('VALUE', $item['EntityTypes']) && $officer == $item['Id']) {
-                            $index = array_search('CHILD', array_column($item['Relationships'], 'Type'));
-                            if($index !== false) {
-                                $officer = getFullWord($words, $item['Relationships'][$index]['Ids']);
-                            }
+                    }
+                    if(in_array('VALUE', $item['EntityTypes']) && $officer == $item['Id']) {
+                        $index = array_search('CHILD', array_column($item['Relationships'], 'Type'));
+                        if($index !== false) {
+                            $officer = getFullWord($words, $item['Relationships'][$index]['Ids']);
                         }
                     }
                 }

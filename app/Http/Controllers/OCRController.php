@@ -80,6 +80,7 @@ class OCRController extends Controller
         );
         $words = [];
         $officer = '';
+        $forms = [];
 
         while(true) {
             $result = $textract->getDocumentAnalysis(array(
@@ -91,7 +92,7 @@ class OCRController extends Controller
             {
                 if($jobStatus == 'SUCCEEDED')
                 {
-                    parseResult($result['Blocks'], $results, $words, $officer);
+                    parseResult($result['Blocks'], $results, $words, $officer, $forms);
 
                     $token = $result['NextToken'];
                     while ($token != null)
@@ -101,7 +102,7 @@ class OCRController extends Controller
                             'NextToken' => $token
                         ));
 
-                        parseResult($nextResult['Blocks'], $results, $words, $officer);
+                        parseResult($nextResult['Blocks'], $results, $words, $officer, $forms);
                         $token = $nextResult['NextToken'];
 
                         usleep(200 * 1000);
@@ -152,6 +153,13 @@ class OCRController extends Controller
         unlink($filepath);
         $zip->close();
         Storage::disk('local')->deleteDirectory($key);
+
+        $short_officer = strtolower(preg_replace('/\s+/', '', $officer));
+        foreach($forms as $key => $rect) {
+            if(strpos($key, 'signature') !== false || strpos($key, $short_officer) !== false) {
+                error_log(substr($key, 0, -36) . ': ' . json_encode($rect));
+            }
+        }
 
         $elapsed = microtime(true) - $time_start;
         error_log('Success Finish : ' . $elapsed . 'ms');
