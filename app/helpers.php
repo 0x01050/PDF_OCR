@@ -104,6 +104,10 @@ if (! function_exists('parseResult')) {
                         $index = array_search('CHILD', array_column($item['Relationships'], 'Type'));
                         if($index !== false) {
                             $key = getFullWord($words, $item['Relationships'][$index]['Ids']);
+                            if($key == 'Missing Index 39960510') {
+                                echo json_encode($item);
+                                exit;
+                            }
 
                             $key = preg_replace('/\s+/', '', $key);
                             $key = strtolower($key);
@@ -119,6 +123,10 @@ if (! function_exists('parseResult')) {
                         $index = array_search('CHILD', array_column($item['Relationships'], 'Type'));
                         if($index !== false) {
                             $officer = getFullWord($words, $item['Relationships'][$index]['Ids']);
+                            if($officer == 'Missing Index 39960510') {
+                                echo json_encode($item);
+                                exit;
+                            }
                         }
                     }
                 }
@@ -139,7 +147,12 @@ if (! function_exists('getFullWord')) {
     function getFullWord($words, $childs) {
         $complete = '';
         foreach($childs as $child) {
-            $complete .= $words[$child] . ' ';
+            if(!isset($words[$child])) {
+                error_log('Missing Index: ' . $child);
+                return 'Missing Index 39960510';
+            } else {
+                $complete .= $words[$child] . ' ';
+            }
         }
         return trim($complete);
     }
