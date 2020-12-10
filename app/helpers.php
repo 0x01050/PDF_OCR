@@ -145,4 +145,15 @@ if (! function_exists('getFullWord')) {
     }
 }
 
+if (! function_exists('mmToIn')) {
+    function mmToIn ($val) {
+        return $val * 0.0393701;
+    }
+}
+if (! function_exists('mmToPt')) {
+    function mmToPt ($val) {
+        return mmToIn($val) * 72;
+    }
+}
+
 ?>

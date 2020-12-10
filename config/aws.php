@@ -17,13 +17,13 @@ return [
     |
     */
     'credentials' => [
-        'key'    => env('AWS_ACCESS_KEY_ID', 'AKIAIXW7CKH2HS32C52A'),
-        'secret' => env('AWS_SECRET_ACCESS_KEY', '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'),
+        'key'    => env('AWS_ACCESS_KEY_ID'),
+        'secret' => env('AWS_SECRET_ACCESS_KEY'),
     ],
-    'region' => env('AWS_REGION', 'us-east-2'),
+    'region' => env('AWS_DEFAULT_REGION'),
     'version' => 'latest',
     'ua_append' => [
         'L5MOD/' . AwsServiceProvider::VERSION,
     ],
-    'bucket' => 'pdfscan.southriver',
+    'bucket' => env('AWS_BUCKET'),
 ];

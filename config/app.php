@@ -184,6 +184,11 @@ return [
          * Zip Provider
          */
         ZanySoft\Zip\ZipServiceProvider::class,
+
+        /*
+         * DocuSign Provider
+         */
+        LaravelDocusign\DocusignServiceProvider::class,
     ],
 
     /*
@@ -238,6 +243,7 @@ return [
 
         'AWS' => Aws\Laravel\AwsFacade::class,
         'Zip' => ZanySoft\Zip\ZipFacade::class,
+        'DocuSign'  => LaravelDocusign\Facades\DocuSign::class,
     ],
 
 ];

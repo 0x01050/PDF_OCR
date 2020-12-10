@@ -18,6 +18,7 @@
         "setasign/fpdi": "^2.3",
         "setasign/fpdi_pdf-parser": "^2.0",
         "tecnickcom/tcpdf": "^6.3.5",
+        "tucker-eric/laravel-docusign": "^4.1",
         "zanysoft/laravel-zip": "master"
     },
     "require-dev": {
