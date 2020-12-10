@@ -161,11 +161,12 @@ class OCRController extends Controller
             $pdf = new Fpdi();
             $pdf->setSourceFile($filepath);
 
-            $email = 'gk39960510@gmail.com'; // Retrieve from User DB by officer name
+            $email = 'tyler@southrivermtg.com'; // Retrieve from User DB by officer name
             $short_officer = strtolower(preg_replace('/\s+/', '', $officer));
             $signHereTabs = [];
             foreach($forms as $formkey => $rect) {
-                if(strpos($formkey, 'signature') !== false || strpos($formkey, $short_officer) !== false) {
+                if((strpos($formkey, 'signature') !== false && (strpos($formkey, 'loan') !== false || strpos($formkey, 'officer') !== false))
+                    || (strpos($formkey, $short_officer) !== false)) {
                     $tplIdx = $pdf -> importPage($rect['Page']);
                     $size = $pdf->getTemplateSize($tplIdx);
 
