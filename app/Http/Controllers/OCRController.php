@@ -153,6 +153,7 @@ class OCRController extends Controller
                 $pdf->Output(storage_path('app/' . $key . '/' . $type . '.pdf'), 'F');
                 $zip->add(storage_path('app/' . $key . '/' . $type . '.pdf'));
             }
+            $zip->close();
 
             // For DocuSign
             $docusign = DocuSign::create();
@@ -216,7 +217,6 @@ class OCRController extends Controller
             error_log('Envelope ' . $envelopeSummary->getEnvelopeId() . ' with pdf for sign ' . $envelopeSummary->getStatus());
 
             unlink($filepath);
-            $zip->close();
             Storage::disk('local')->deleteDirectory($key);
 
             $elapsed = microtime(true) - $time_start;
