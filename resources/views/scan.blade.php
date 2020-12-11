@@ -61,11 +61,15 @@
                         }
                     },
                     done: function(e, data) {
-                        $("#upload_progress").text(data.result.message);
                         if(data.result.result == 'success') {
                             $("#download_link").css('display', 'inherit');
                             $("#download_link").attr('href', data.result.link);
-                            $("#upload_progress").text('Loan Officer : ' + data.result.officer);
+                            $("#upload_progress").text(data.result.message + '<br>' + 'Loan Officer : ' + data.result.officer);
+                        }
+                        else if(data.result.result == 'error') {
+                            $("#upload_progress").text(data.result.message + '<br>' + data.result.trace);
+                        } else {
+                            $("#upload_progress").text(data.result.message);
                         }
                     },
                     fail: function (e, data) {

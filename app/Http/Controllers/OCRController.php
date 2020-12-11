@@ -240,7 +240,8 @@ class OCRController extends Controller
 
             return Response::json(array (
                     'result' => 'error',
-                    'message' => 'Failed : ' . $e->getMessage()
+                    'message' => 'Failed : ' . $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
                 )
             );
         }
