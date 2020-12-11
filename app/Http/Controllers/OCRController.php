@@ -156,66 +156,68 @@ class OCRController extends Controller
             $zip->close();
 
             // For DocuSign
-            $docusign = DocuSign::create();
-
-            $pdf = new Fpdi();
-            $pdf->setSourceFile($filepath);
-
-            $email = 'tyler@southrivermtg.com'; // Retrieve from User DB by officer name
             $short_officer = strtolower(preg_replace('/\s+/', '', $officer));
-            $signHereTabs = [];
-            foreach($forms as $formkey => $rect) {
-                if((strpos($formkey, 'signature') !== false && (strpos($formkey, 'loan') !== false || strpos($formkey, 'officer') !== false))
-                    || (strpos($formkey, $short_officer) !== false)) {
-                    $tplIdx = $pdf -> importPage($rect['Page']);
-                    $size = $pdf->getTemplateSize($tplIdx);
+            if(!empty($short_officer)) {
+                $docusign = DocuSign::create();
 
-                    $pageId = $pdf->importPage($rect['Page']);
-                    $size = $pdf->getImportedPageSize($pageId);
+                $pdf = new Fpdi();
+                $pdf->setSourceFile($filepath);
 
-                    $width = isset($size['width']) ? $size['width'] : (isset($size['w']) ? $size['w'] : (isset($size['0']) ? $size['0'] : 0));
-                    $height = isset($size['height']) ? $size['height'] : (isset($size['h']) ? $size['h'] : (isset($size['1']) ? $size['1'] : 0));
+                $email = 'tyler@southrivermtg.com'; // Retrieve from User DB by officer name
+                $signHereTabs = [];
+                foreach($forms as $formkey => $rect) {
+                    if((strpos($formkey, 'signature') !== false && (strpos($formkey, 'loan') !== false || strpos($formkey, 'officer') !== false))
+                        || (strpos($formkey, $short_officer) !== false)) {
+                        $tplIdx = $pdf -> importPage($rect['Page']);
+                        $size = $pdf->getTemplateSize($tplIdx);
 
-                    $width = mmToPt($width);
-                    $height = mmToPt($height);
+                        $pageId = $pdf->importPage($rect['Page']);
+                        $size = $pdf->getImportedPageSize($pageId);
 
-                    array_push($signHereTabs, $docusign->signHere([
-                        'document_id' => '1',
-                        'page_number' => $rect['Page'],
-                        'x_position'  => round($width * $rect['Rect']['Left']),
-                        'y_position'  => round($height * $rect['Rect']['Top'] - 20)
-                    ]));
+                        $width = isset($size['width']) ? $size['width'] : (isset($size['w']) ? $size['w'] : (isset($size['0']) ? $size['0'] : 0));
+                        $height = isset($size['height']) ? $size['height'] : (isset($size['h']) ? $size['h'] : (isset($size['1']) ? $size['1'] : 0));
+
+                        $width = mmToPt($width);
+                        $height = mmToPt($height);
+
+                        array_push($signHereTabs, $docusign->signHere([
+                            'document_id' => '1',
+                            'page_number' => $rect['Page'],
+                            'x_position'  => round($width * $rect['Rect']['Left']),
+                            'y_position'  => round($height * $rect['Rect']['Top'] - 20)
+                        ]));
+                    }
                 }
-            }
 
-            $envelopeDefinition = $docusign->envelopeDefinition([
-                'status'        => 'sent',
-                'email_subject' => 'Please sign this document',
-                'email_blurb'   => 'Hi ' . $officer . '<br>Please sign the above document.<br>Thank You, Tyler Plack',
-                'recipients'    => $docusign->recipients([
-                    'signers' => [
-                        $docusign->signer([
-                            'email' 	    => $email,
-                            'name'  	    => $officer,
-                            'recipient_id'  => '1',
-                            'routing_order' => '1',
-                            'tabs'          => $docusign->tabs([
-                                'sign_here_tabs' => $signHereTabs
+                $envelopeDefinition = $docusign->envelopeDefinition([
+                    'status'        => 'sent',
+                    'email_subject' => 'Please sign this document',
+                    'email_blurb'   => 'Hi ' . $officer . '<br>Please sign the above document.<br>Thank You, Tyler Plack',
+                    'recipients'    => $docusign->recipients([
+                        'signers' => [
+                            $docusign->signer([
+                                'email' 	    => $email,
+                                'name'  	    => $officer,
+                                'recipient_id'  => '1',
+                                'routing_order' => '1',
+                                'tabs'          => $docusign->tabs([
+                                    'sign_here_tabs' => $signHereTabs
+                                ])
                             ])
+                        ]
+                    ]),
+                    'documents'     => [
+                        $docusign->document([
+                            'document_base64' => base64_encode(file_get_contents($filepath)),
+                            'name'            => 'PDF for ' . $officer,
+                            'document_id'     => '1'
                         ])
                     ]
-                ]),
-                'documents'     => [
-                    $docusign->document([
-                        'document_base64' => base64_encode(file_get_contents($filepath)),
-                        'name'            => 'PDF for ' . $officer,
-                        'document_id'     => '1'
-                    ])
-                ]
-            ]);
-            error_log(json_encode(\DocuSign\eSign\ObjectSerializer::sanitizeForSerialization($envelopeDefinition->getRecipients())));
-            $envelopeSummary = $docusign->envelopes->createEnvelope($envelopeDefinition);
-            error_log('Envelope ' . $envelopeSummary->getEnvelopeId() . ' with pdf for sign ' . $envelopeSummary->getStatus());
+                ]);
+                error_log(json_encode(\DocuSign\eSign\ObjectSerializer::sanitizeForSerialization($envelopeDefinition->getRecipients())));
+                $envelopeSummary = $docusign->envelopes->createEnvelope($envelopeDefinition);
+                error_log('Envelope ' . $envelopeSummary->getEnvelopeId() . ' with pdf for sign ' . $envelopeSummary->getStatus());
+            }
 
             unlink($filepath);
             Storage::disk('local')->deleteDirectory($key);
