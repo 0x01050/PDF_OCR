@@ -34,6 +34,10 @@ if (! function_exists('parseResult')) {
 
                     if(strpos($text, 'fanniemaeform1009') === 0) { // Form 1009
                         addTo($item['Page'], $results['Form 1009']);
+                    } else if($original == 'FannieMae') { // Form 1009
+                        addTo($item['Page'], $results['Form 1009']);
+                    } else if(strpos($text, 'fm1009addend') === 0) { // Remove from Form 1009
+                        removeFrom($item['Page'], $results['Form 1009']);
                     } else if($text == 'borrowercertification' || $text == 'barrowercertification') { // Borrower Authorization
                         addTo($item['Page'], $results['Borrower Authorization']);
                     } else if(strpos($text, 'hud-92902') !== false) { // Counseling Certificate
@@ -44,9 +48,7 @@ if (! function_exists('parseResult')) {
                         addTo($item['Page'], $results['GFE']);
                     } else if(strpos($text, 'hud-92900a') !== false || strpos($text, 'hud-92900-a') !== false) { // HUD 92900A
                         addTo($item['Page'], $results['HUD 92900A']);
-                    } else if($original == 'FannieMae') { // Form 1009
-                        addTo($item['Page'], $results['Form 1009']);
-                    } else if($text == 'monthlyreversemortgagestatement') { // Monthly Reverse Mortgage Statement
+                    } else if(strpos($text, 'monthlyreversemortgagestate') === 0) { // Monthly Reverse Mortgage Statement
                         addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
                     } else if($original == 'DRIVER LICENSE' || $text == 'DRIVER\'S LICENSE') { // Driver's License
                         addTo($item['Page'], $results['Driver\'s License']);
@@ -125,6 +127,15 @@ if (! function_exists('addTo')) {
     function addTo($page, &$results) {
         if(!in_array($page, $results, true)){
             array_push($results, $page);
+        }
+    }
+}
+
+if (! function_exists('removeFrom')) {
+    function removeFrom($page, &$results) {
+        $index = array_search($page, $results);
+        if($index !== false) {
+            unset($results[$index]);
         }
     }
 }
