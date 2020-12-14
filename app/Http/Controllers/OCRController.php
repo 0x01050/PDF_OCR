@@ -188,7 +188,7 @@ class OCRController extends Controller
                     $signHereTabs = [];
 
                     for($j = $processed_pages + 1; $j <= $last_page; $j ++) {
-                        $tplIdx = $pdf -> importPage($j);
+                        $tplIdx = $pdf->importPage($j);
                         $pdf->AddPage();
                         $pdf->useTemplate($tplIdx);
                         $size = $pdf->getTemplateSize($tplIdx);
@@ -221,6 +221,8 @@ class OCRController extends Controller
                     $temp_pdf = storage_path('app/' . $temp_pdf);
                     $pdf->Output($temp_pdf, 'F');
 
+                    $processed_pages += $j - 1;
+
                     $envelopeDefinition = $docusign->envelopeDefinition([
                         'status'        => 'sent',
                         'email_subject' => 'Please sign this document',
@@ -247,10 +249,10 @@ class OCRController extends Controller
                         ]
                     ]);
                     error_log(json_encode(ObjectSerializer::sanitizeForSerialization($envelopeDefinition->getRecipients())));
-                    // $envelopeSummary = $docusign->envelopes->createEnvelope($envelopeDefinition);
-                    // error_log('Envelope ' . $envelopeSummary->getEnvelopeId() . ' with pdf for sign ' . $envelopeSummary->getStatus());
+                    $envelopeSummary = $docusign->envelopes->createEnvelope($envelopeDefinition);
+                    error_log('Envelope ' . $envelopeSummary->getEnvelopeId() . ' with pdf for sign ' . $envelopeSummary->getStatus());
 
-                    // unlink($temp_pdf);
+                    unlink($temp_pdf);
                 }
             }
 
