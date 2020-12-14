@@ -33,36 +33,28 @@ if (! function_exists('parseResult')) {
                 if(isset($item['Geometry']) && isset($item['Geometry']['BoundingBox']) && isset($item['Geometry']['BoundingBox']['Top'])) {
                     $top = $item['Geometry']['BoundingBox']['Top'];
 
-                    if($top > 0.85) {
-                        if(strpos($text, 'fanniemaeform1009') === 0) { // Form 1009
-                            addTo($item['Page'], $results['Form 1009']);
-                        } else if(strpos($text, 'borrowercertification') !== false || strpos($text, 'barrowercertification') !== false) { // Borrower Authorization
-                            addTo($item['Page'], $results['Borrower Authorization']);
-                        } else if(strpos($text, 'hud-92902') !== false) { // Counseling Certificate
-                            addTo($item['Page'], $results['Counseling Certificate']);
-                        } else if(strpos($text, 'hud-92901') !== false) { // Anti-Churning Form
-                            addTo($item['Page'], $results['Anti-Churning Form']);
-                        } else if(strpos($text, 'goodfaithestimate') === 0) { // GFE
-                            addTo($item['Page'], $results['GFE']);
-                        } else if(strpos($text, 'hud-92900a') !== false || strpos($text, 'hud-92900-a') !== false) { // HUD 92900A
-                            addTo($item['Page'], $results['HUD 92900A']);
-                        }
-                    }
-                    if($top < 0.15) {
-                        if(strpos($text, 'fanniemae') !== false) { // Form 1009
-                            addTo($item['Page'], $results['Form 1009']);
-                        } else if($text == 'monthlyreversemortgagestatement') { // Monthly Reverse Mortgage Statement
-                            addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
-                        }
-                    }
-                    {
-                        if($original == 'DRIVER LICENSE' || $text == 'DRIVER\'S LICENSE') { // Driver's License
-                            addTo($item['Page'], $results['Driver\'s License']);
-                        } else if(strpos($text, 'beneficiary\'ssocialsecuritynumber') !== false) { // Social Security 1099
-                            addTo($item['Page'], $results['Social Security Income']);
-                        } else if(strpos($text, 'socialsecuritybenefit') !== false) { // Social Security Award Letter
-                            addTo($item['Page'], $results['Social Security Income']);
-                        }
+                    if(strpos($text, 'fanniemaeform1009') === 0) { // Form 1009
+                        addTo($item['Page'], $results['Form 1009']);
+                    } else if($text == 'borrowercertification' || $text == 'barrowercertification') { // Borrower Authorization
+                        addTo($item['Page'], $results['Borrower Authorization']);
+                    } else if(strpos($text, 'hud-92902') !== false) { // Counseling Certificate
+                        addTo($item['Page'], $results['Counseling Certificate']);
+                    } else if(strpos($text, 'hud-92901') !== false) { // Anti-Churning Form
+                        addTo($item['Page'], $results['Anti-Churning Form']);
+                    } else if(strpos($text, 'goodfaithestimate') === 0) { // GFE
+                        addTo($item['Page'], $results['GFE']);
+                    } else if(strpos($text, 'hud-92900a') !== false || strpos($text, 'hud-92900-a') !== false) { // HUD 92900A
+                        addTo($item['Page'], $results['HUD 92900A']);
+                    } else if($original == 'FannieMae') { // Form 1009
+                        addTo($item['Page'], $results['Form 1009']);
+                    } else if($text == 'monthlyreversemortgagestatement') { // Monthly Reverse Mortgage Statement
+                        addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
+                    } else if($original == 'DRIVER LICENSE' || $text == 'DRIVER\'S LICENSE') { // Driver's License
+                        addTo($item['Page'], $results['Driver\'s License']);
+                    } else if(strpos($text, 'beneficiary\'ssocialsecuritynumber') !== false) { // Social Security 1099
+                        addTo($item['Page'], $results['Social Security Income']);
+                    } else if(strpos($text, 'socialsecuritybenefit') !== false) { // Social Security Award Letter
+                        addTo($item['Page'], $results['Social Security Income']);
                     }
                 } else {
                     continue;
