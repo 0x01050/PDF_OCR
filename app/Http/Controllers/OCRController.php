@@ -183,8 +183,7 @@ class OCRController extends Controller
                     $pages_per_pdf = ceil($page_count / $pdf_count);
                     $last_page = min($pages_per_pdf * $i, $page_count);
 
-                    // $email = 'tyler@southrivermtg.com'; // Retrieve from User DB by officer name
-                    $email = 'gk39960510@gmail.com'; // For Debug
+                    $email = 'tyler@southrivermtg.com'; // Retrieve from User DB by officer name
                     $signHereTabs = [];
 
                     for($j = $processed_pages + 1; $j <= $last_page; $j ++) {
