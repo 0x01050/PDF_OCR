@@ -252,7 +252,7 @@ class OCRController extends Controller
                     $envelopeSummary = $docusign->envelopes->createEnvelope($envelopeDefinition);
                     error_log('Envelope ' . $envelopeSummary->getEnvelopeId() . ' with pdf for sign ' . $envelopeSummary->getStatus());
 
-                    unlink($temp_pdf);
+                    // unlink($temp_pdf);
                 }
             }
 
