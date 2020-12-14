@@ -14,6 +14,7 @@ if (! function_exists('random_string')) {
 
 if (! function_exists('parseResult')) {
     function parseResult($blocks, &$results, &$words, &$officer, &$forms) {
+        $officer_found = false;
         foreach($blocks as $item)
         {
             if(!isset($item['Id']))
@@ -25,6 +26,7 @@ if (! function_exists('parseResult')) {
 
             if($item['BlockType'] == 'LINE' && isset($item['Text'])) {
                 $text = $item['Text'];
+                $original = $text;
                 $text = preg_replace('/\s+/', '', $text);
                 $text = strtolower($text);
 
@@ -36,7 +38,7 @@ if (! function_exists('parseResult')) {
                             addTo($item['Page'], $results['Form 1009']);
                         } else if(strpos($text, 'borrowercertification') !== false || strpos($text, 'barrowercertification') !== false) { // Borrower Authorization
                             addTo($item['Page'], $results['Borrower Authorization']);
-                        } else if(strpos($text, 'hud-92002') !== false) { // Counseling Certificate
+                        } else if(strpos($text, 'hud-92902') !== false) { // Counseling Certificate
                             addTo($item['Page'], $results['Counseling Certificate']);
                         } else if(strpos($text, 'hud-92901') !== false) { // Anti-Churning Form
                             addTo($item['Page'], $results['Anti-Churning Form']);
@@ -54,7 +56,7 @@ if (! function_exists('parseResult')) {
                         }
                     }
                     {
-                        if($text == 'driverlicense' || $text == 'driver\'slicense') { // Driver's License
+                        if($original == 'DRIVER LICENSE' || $text == 'DRIVER\'S LICENSE') { // Driver's License
                             addTo($item['Page'], $results['Driver\'s License']);
                         } else if(strpos($text, 'beneficiary\'ssocialsecuritynumber') !== false) { // Social Security 1099
                             addTo($item['Page'], $results['Social Security Income']);
@@ -119,10 +121,14 @@ if (! function_exists('parseResult')) {
                         $index = array_search('CHILD', array_column($item['Relationships'], 'Type'));
                         if($index !== false) {
                             $officer = getFullWord($words, $item['Relationships'][$index]['Ids']);
+                            $officer_found = true;
                         }
                     }
                 }
             }
+        }
+        if(!$officer_found) {
+            $officer = '';
         }
     }
 }

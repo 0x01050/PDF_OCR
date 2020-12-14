@@ -166,7 +166,7 @@ class OCRController extends Controller
                 $email = 'tyler@southrivermtg.com'; // Retrieve from User DB by officer name
                 $signHereTabs = [];
                 foreach($forms as $formkey => $rect) {
-                    if((strpos($formkey, 'signature') !== false && (strpos($formkey, 'loan') !== false || strpos($formkey, 'officer') !== false))
+                    if((strpos($formkey, 'signature') !== false && (strpos($formkey, 'loan') !== false || strpos($formkey, 'officer') !== false || strpos($formkey, 'lender') !== false))
                         || (strpos($formkey, $short_officer) !== false)) {
                         $tplIdx = $pdf -> importPage($rect['Page']);
                         $size = $pdf->getTemplateSize($tplIdx);
