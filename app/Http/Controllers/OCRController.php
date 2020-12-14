@@ -182,7 +182,7 @@ class OCRController extends Controller
                     for($j = $processed_pages + 1; $j <= $last_page; $j ++) {
                         $tplIdx = $pdf -> importPage($j);
                         $pdf->AddPage();
-                        $pdf->useTemplate($templateId);
+                        $pdf->useTemplate($tplIdx);
                         $size = $pdf->getTemplateSize($tplIdx);
 
                         $signCandidates = array_filter($forms, function($rect) use($j) {
