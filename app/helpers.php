@@ -38,7 +38,9 @@ if (! function_exists('parseResult')) {
                         addTo($item['Page'], $results['Form 1009']);
                     } else if(strpos($text, 'fm1009addend') === 0) { // Remove from Form 1009
                         removeFrom($item['Page'], $results['Form 1009']);
-                    } else if($text == 'borrowercertification' || $text == 'barrowercertification') { // Borrower Authorization
+                    } else if($text == 'borrowercertification' || $text == 'barrowercertification') { // Borrower Certification
+                        addTo($item['Page'], $results['Borrower Authorization']);
+                    } else if(strpos($text, 'borrowersauthorization') === 0) { // Borrower Authorization
                         addTo($item['Page'], $results['Borrower Authorization']);
                     } else if(strpos($text, 'hud-92902') !== false) { // Counseling Certificate
                         addTo($item['Page'], $results['Counseling Certificate']);
