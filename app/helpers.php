@@ -13,8 +13,7 @@ if (! function_exists('random_string')) {
 }
 
 if (! function_exists('parseResult')) {
-    function parseResult($blocks, &$results, &$words, &$officer, &$forms) {
-        $officer_found = false;
+    function parseResult($blocks, &$results, &$words, &$officer, &$officer_found, &$forms) {
         foreach($blocks as $item)
         {
             if(!isset($item['Id']))
@@ -93,7 +92,7 @@ if (! function_exists('parseResult')) {
                     }
                 }
 
-                if(in_array($item['Page'], $results['Form 1009']) && isset($item['Relationships'])) {
+                if(!$officer_found && in_array($item['Page'], $results['Form 1009']) && isset($item['Relationships'])) {
                     if(in_array('KEY', $item['EntityTypes'])) {
                         $index = array_search('CHILD', array_column($item['Relationships'], 'Type'));
                         if($index !== false) {
@@ -118,9 +117,6 @@ if (! function_exists('parseResult')) {
                     }
                 }
             }
-        }
-        if(!$officer_found) {
-            $officer = '';
         }
     }
 }

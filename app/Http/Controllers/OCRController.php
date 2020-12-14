@@ -84,6 +84,7 @@ class OCRController extends Controller
             );
             $words = [];
             $officer = '';
+            $officer_found = false;
             $forms = [];
 
             while(true) {
@@ -96,7 +97,7 @@ class OCRController extends Controller
                 {
                     if($jobStatus == 'SUCCEEDED')
                     {
-                        parseResult($result['Blocks'], $results, $words, $officer, $forms);
+                        parseResult($result['Blocks'], $results, $words, $officer, $officer_found, $forms);
 
                         $token = $result['NextToken'];
                         while ($token != null)
@@ -106,7 +107,7 @@ class OCRController extends Controller
                                 'NextToken' => $token
                             ));
 
-                            parseResult($nextResult['Blocks'], $results, $words, $officer, $forms);
+                            parseResult($nextResult['Blocks'], $results, $words, $officer, $officer_found, $forms);
                             $token = $nextResult['NextToken'];
 
                             usleep(200 * 1000);
@@ -138,6 +139,13 @@ class OCRController extends Controller
 
             // Scan Finished
             error_log(json_encode($results));
+
+
+            if(!$officer_found) {
+                $officer = '';
+            } else {
+                error_log("Officer Name: " . $officer);
+            }
 
             // For PDF Separate
             Storage::disk('local')->makeDirectory($key);
