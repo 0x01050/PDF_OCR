@@ -249,8 +249,11 @@ class OCRController extends Controller
                         ]
                     ]);
                     error_log(json_encode(ObjectSerializer::sanitizeForSerialization($envelopeDefinition->getRecipients())));
-                    $envelopeSummary = $docusign->envelopes->createEnvelope($envelopeDefinition);
-                    error_log('Envelope ' . $envelopeSummary->getEnvelopeId() . ' with pdf for sign ' . $envelopeSummary->getStatus());
+
+                    if(!empty($signHereTabs)) {
+                        $envelopeSummary = $docusign->envelopes->createEnvelope($envelopeDefinition);
+                        error_log('Envelope ' . $envelopeSummary->getEnvelopeId() . ' with pdf for sign ' . $envelopeSummary->getStatus());
+                    }
 
                     unlink($temp_pdf);
                 }
