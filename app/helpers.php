@@ -42,6 +42,8 @@ if (! function_exists('parseResult')) {
                         addTo($item['Page'], $results['Borrower Authorization']);
                     } else if(strpos($text, 'borrowersauthorization') === 0) { // Borrower Authorization
                         addTo($item['Page'], $results['Borrower Authorization']);
+                    } else if($original == 'Borrower\'s Certification and Authorization') { // Borrower's Certification and Authorization
+                        addTo($item['Page'], $results['Borrower Authorization']);
                     } else if(strpos($text, 'hud-92902') !== false) { // Counseling Certificate
                         addTo($item['Page'], $results['Counseling Certificate']);
                     } else if(strpos($text, 'hud-92901') !== false) { // Anti-Churning Form
