@@ -200,11 +200,6 @@ class OCRController extends Controller
                             if((strpos($formkey, 'signature') !== false && (strpos($formkey, 'loan') !== false || strpos($formkey, 'officer') !== false || strpos($formkey, 'lender') !== false))
                                 || (strpos($formkey, $short_officer) !== false)) {
 
-                                    if($j === 22) {
-                                        echo json_encode($size) . ' : ' . json_encode($rect);
-                                        exit;
-                                    }
-
                                 $width = isset($size['width']) ? $size['width'] : (isset($size['w']) ? $size['w'] : (isset($size['0']) ? $size['0'] : 0));
                                 $height = isset($size['height']) ? $size['height'] : (isset($size['h']) ? $size['h'] : (isset($size['1']) ? $size['1'] : 0));
 
