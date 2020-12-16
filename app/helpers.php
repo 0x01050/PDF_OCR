@@ -52,6 +52,14 @@ if (! function_exists('parseResult')) {
                         addTo($item['Page'], $results['GFE']);
                     } else if(strpos($text, 'hud-92900a') !== false || strpos($text, 'hud-92900-a') !== false) { // HUD 92900A
                         addTo($item['Page'], $results['HUD 92900A']);
+                    } else if(strpos($text, 'thisisnotabill') !== false) { // HUD 92900A
+                        addTo($item['Page'], $results['HUD 92900A']);
+                    } else if(strpos($text, 'monthlyreversemortgagestate') === 0) { // Monthly Reverse Mortgage Statement
+                        addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
+                    } else if($original == 'HUD/VA Addendum to Uniform Residential Loan Application') { // Monthly Reverse Mortgage Statement
+                        addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
+                    } else if($original == 'Part III - Notices to Borowers') { // Monthly Reverse Mortgage Statement
+                        addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
                     } else if(strpos($text, 'monthlyreversemortgagestate') === 0) { // Monthly Reverse Mortgage Statement
                         addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
                     } else if($original == 'DRIVER LICENSE' || $text == 'DRIVER\'S LICENSE') { // Driver's License

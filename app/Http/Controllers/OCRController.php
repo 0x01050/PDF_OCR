@@ -211,11 +211,14 @@ class OCRController extends Controller
                                 $width = mmToPt($width);
                                 $height = mmToPt($height);
 
+                                $x_position = round($width * $rect['Rect']['Left']);
+                                $y_position = round($height * $rect['Rect']['Top'] - 20);
+
                                 array_push($signHereTabs, $docusign->signHere([
                                     'document_id' => '1',
                                     'page_number' => $rect['Page'] - $processed_pages,
-                                    'x_position'  => round($width * $rect['Rect']['Left']),
-                                    'y_position'  => round($height * $rect['Rect']['Top'] - 20)
+                                    'x_position'  => $x_position,
+                                    'y_position'  => $y_position < 0 ? 0 : $y_position
                                 ]));
                             }
                         }
