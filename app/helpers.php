@@ -60,7 +60,7 @@ if (! function_exists('parseResult')) {
                         addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
                     } else if(strpos($text, 'monthlyreversemortgagestate') === 0) { // Monthly Reverse Mortgage Statement
                         addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
-                    } else if(strpos($text, 'thisisnotabill') !== false) { // Monthly Reverse Mortgage Statement
+                    } else if($original == 'THIS IS NOT A BILL') { // Monthly Reverse Mortgage Statement
                         addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
                     } else if($original == 'DRIVER LICENSE' || $text == 'DRIVER\'S LICENSE') { // Driver's License
                         addTo($item['Page'], $results['Driver\'s License']);
