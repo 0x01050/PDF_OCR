@@ -209,6 +209,10 @@ class OCRController extends Controller
                                 $x_position = round($width * $rect['Rect']['Left']);
                                 $y_position = round($height * $rect['Rect']['Top'] - 20);
 
+                                if($j === 22) {
+                                    echo (json_encode($size) . ':' . json_encode($rect) . ':' . $x_position . ':' . $y_position . ':' . '<br>');
+                                }
+
                                 array_push($signHereTabs, $docusign->signHere([
                                     'document_id' => '1',
                                     'page_number' => $rect['Page'] - $processed_pages,
@@ -216,6 +220,10 @@ class OCRController extends Controller
                                     'y_position'  => $y_position < 0 ? 0 : $y_position
                                 ]));
                             }
+                        }
+
+                        if($j === 22) {
+                            exit;
                         }
                     }
 
