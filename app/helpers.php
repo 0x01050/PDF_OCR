@@ -175,4 +175,11 @@ if (! function_exists('mmToPt')) {
     }
 }
 
+if (! function_exists('swap')) {
+    function swap(&$left, &$right) {
+        $temp = $left;
+        $left = $right;
+        $right = $temp;
+    }
+}
 ?>
