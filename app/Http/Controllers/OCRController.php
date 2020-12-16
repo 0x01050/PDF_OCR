@@ -200,6 +200,11 @@ class OCRController extends Controller
                             if((strpos($formkey, 'signature') !== false && (strpos($formkey, 'loan') !== false || strpos($formkey, 'officer') !== false || strpos($formkey, 'lender') !== false))
                                 || (strpos($formkey, $short_officer) !== false)) {
 
+                                    if($j === 22) {
+                                        echo json_encode($size) . ' : ' . json_encode($rect);
+                                        exit;
+                                    }
+
                                 $width = isset($size['width']) ? $size['width'] : (isset($size['w']) ? $size['w'] : (isset($size['0']) ? $size['0'] : 0));
                                 $height = isset($size['height']) ? $size['height'] : (isset($size['h']) ? $size['h'] : (isset($size['1']) ? $size['1'] : 0));
 
@@ -208,7 +213,7 @@ class OCRController extends Controller
 
                                 array_push($signHereTabs, $docusign->signHere([
                                     'document_id' => '1',
-                                    'page_number' => ($pdf_count > 1 ? intval($rect['Page']) - $processed_pages : intval($rect['Page'])),
+                                    'page_number' => $rect['Page'] - $processed_pages,
                                     'x_position'  => round($width * $rect['Rect']['Left']),
                                     'y_position'  => round($height * $rect['Rect']['Top'] - 20)
                                 ]));
