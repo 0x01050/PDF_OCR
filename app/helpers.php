@@ -54,7 +54,7 @@ if (! function_exists('parseResult')) {
                         addTo($item['Page'], $results['HUD 92900A']);
                     } else if($original == 'HUD/VA Addendum to Uniform Residential Loan Application') { // HUD 92900A
                         addTo($item['Page'], $results['HUD 92900A']);
-                    } else if($original == 'Part III - Notices to Borowers') { // HUD 92900A
+                    } else if($original == 'Part III - Notices to Borrowers') { // HUD 92900A
                         addTo($item['Page'], $results['HUD 92900A']);
                     } else if(strpos($text, 'monthlyreversemortgagestate') === 0) { // Monthly Reverse Mortgage Statement
                         addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
