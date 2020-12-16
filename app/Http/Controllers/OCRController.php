@@ -193,7 +193,7 @@ class OCRController extends Controller
                         $size = $pdf->getTemplateSize($tplIdx);
 
                         $signCandidates = array_filter($forms, function($rect) use($j) {
-                          return isset($rect['Page']) && $rect['Page'] == $j;
+                          return isset($rect['Page']) && $rect['Page'] === $j;
                         });
 
                         foreach($signCandidates as $formkey => $rect) {
@@ -208,7 +208,7 @@ class OCRController extends Controller
 
                                 array_push($signHereTabs, $docusign->signHere([
                                     'document_id' => '1',
-                                    'page_number' => $rect['Page'] - $processed_pages,
+                                    'page_number' => ($pdf_count > 1 ? intval($rect['Page']) - $processed_pages : intval($rect['Page'])),
                                     'x_position'  => round($width * $rect['Rect']['Left']),
                                     'y_position'  => round($height * $rect['Rect']['Top'] - 20)
                                 ]));
