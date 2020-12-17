@@ -86,6 +86,7 @@ class OCRController extends Controller
             $officer = '';
             $officer_found = false;
             $forms = [];
+            $rotates = [];
 
             while(true) {
                 $result = $textract->getDocumentAnalysis(array(
@@ -97,7 +98,7 @@ class OCRController extends Controller
                 {
                     if($jobStatus == 'SUCCEEDED')
                     {
-                        parseResult($result['Blocks'], $results, $words, $officer, $officer_found, $forms);
+                        parseResult($result['Blocks'], $results, $words, $officer, $officer_found, $forms, $rotates);
 
                         $token = $result['NextToken'];
                         while ($token != null)
@@ -107,7 +108,7 @@ class OCRController extends Controller
                                 'NextToken' => $token
                             ));
 
-                            parseResult($nextResult['Blocks'], $results, $words, $officer, $officer_found, $forms);
+                            parseResult($nextResult['Blocks'], $results, $words, $officer, $officer_found, $forms, $rotates);
                             $token = $nextResult['NextToken'];
 
                             usleep(200 * 1000);
@@ -157,7 +158,16 @@ class OCRController extends Controller
                 $pdf->setSourceFile($filepath);
                 foreach($pages as $page) {
                     $templateId = $pdf->importPage($page);
-                    $pdf->AddPage();
+                    $size = $pdf->getTemplateSize($templateId);
+                    $viewport = 'P';
+                    if(isset($rotates[$page]) && $rotates[$page] > 0) {
+                        if($rotates[$page] != 180) {
+                            $viewport = 'L';
+                            swap($size['width'], $size['height']);
+                        }
+                        $size['Rotate'] = $rotates[$page];
+                    }
+                    $pdf->AddPage($viewport, $size);
                     $pdf->useTemplate($templateId);
                 }
                 $pdf->Output(storage_path('app/' . $key . '/' . $type . '.pdf'), 'F');
@@ -187,10 +197,18 @@ class OCRController extends Controller
                     $signHereTabs = [];
 
                     for($j = $processed_pages + 1; $j <= $last_page; $j ++) {
-                        $tplIdx = $pdf->importPage($j);
-                        $pdf->AddPage();
-                        $pdf->useTemplate($tplIdx);
-                        $size = $pdf->getTemplateSize($tplIdx);
+                        $templateId = $pdf->importPage($j);
+                        $size = $pdf->getTemplateSize($templateId);
+                        $viewport = 'P';
+                        if(isset($rotates[$j]) && $rotates[$j] > 0) {
+                            if($rotates[$j] != 180) {
+                                $viewport = 'L';
+                                swap($size['width'], $size['height']);
+                            }
+                            $size['Rotate'] = $rotates[$j];
+                        }
+                        $pdf->AddPage($viewport, $size);
+                        $pdf->useTemplate($templateId);
 
                         $signCandidates = array_filter($forms, function($rect) use($j) {
                           return isset($rect['Page']) && $rect['Page'] === $j;

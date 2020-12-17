@@ -13,7 +13,7 @@ if (! function_exists('random_string')) {
 }
 
 if (! function_exists('parseResult')) {
-    function parseResult($blocks, &$results, &$words, &$officer, &$officer_found, &$forms) {
+    function parseResult($blocks, &$results, &$words, &$officer, &$officer_found, &$forms, &$rotates) {
         foreach($blocks as $item)
         {
             if(!isset($item['Id']))
@@ -22,6 +22,22 @@ if (! function_exists('parseResult')) {
                 $item['BlockType'] == '';
             if(!isset($item['Page']))
                 $item['Page'] = 0;
+
+            if($item['BlockType'] == 'PAGE') {
+                if(isset($item['Geometry']) && isset($item['Geometry']['Polygon']) && !empty($item['Geometry']['Polygon'])) {
+                    $start_point = $item['Geometry']['Polygon'][0];
+                    if(isset($start_point['X']) && isset($start_point['Y'])) {
+                        if($start_point['X'] < 0.1 && $start_point['Y'] < 0.1)
+                            $rotates[$item['Page']] = 0;
+                        if($start_point['X'] > 0.9 && $start_point['Y'] < 0.1)
+                            $rotates[$item['Page']] = 270;
+                        if($start_point['X'] > 0.9 && $start_point['Y'] > 0.9)
+                            $rotates[$item['Page']] = 180;
+                        if($start_point['X'] < 0.1 && $start_point['Y'] > 0.9)
+                            $rotates[$item['Page']] = 90;
+                    }
+                }
+            }
 
             if($item['BlockType'] == 'LINE' && isset($item['Text'])) {
                 $text = $item['Text'];
@@ -56,9 +72,9 @@ if (! function_exists('parseResult')) {
                         addTo($item['Page'], $results['HUD 92900A']);
                     } else if($original == 'Part III - Notices to Borrowers') { // HUD 92900A
                         addTo($item['Page'], $results['HUD 92900A']);
-                    } else if(strpos($text, 'monthlyreversemortgagestate') === 0) { // Monthly Reverse Mortgage Statement
+                    } else if(strpos($text, 'reversemortgagestate') === 0) { // Monthly Reverse Mortgage Statement
                         addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
-                    } else if(strpos($text, 'monthlyreversemortgagestate') === 0) { // Monthly Reverse Mortgage Statement
+                    } else if(strpos($text, 'reversemortgagestate') === 0) { // Monthly Reverse Mortgage Statement
                         addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
                     } else if($original == 'THIS IS NOT A BILL') { // Monthly Reverse Mortgage Statement
                         addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
