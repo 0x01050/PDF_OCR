@@ -62,6 +62,10 @@ if (! function_exists('parseResult')) {
                         addTo($item['Page'], $results['Borrower Authorization']);
                     } else if(strpos($text, 'hud-92902') !== false) { // Counseling Certificate
                         addTo($item['Page'], $results['Counseling Certificate']);
+                    } else if($original == 'HECM Counseling') { // Counseling Certificate
+                        addTo($item['Page'], $results['Counseling Certificate']);
+                    } else if(strpos($text, 'certificatenumber') !== false) { // Counseling Certificate
+                        addTo($item['Page'], $results['Counseling Certificate']);
                     } else if(strpos($text, 'hud-92901') !== false) { // Anti-Churning Form
                         addTo($item['Page'], $results['Anti-Churning Form']);
                     } else if(strpos($text, 'goodfaithestimate') === 0) { // GFE
