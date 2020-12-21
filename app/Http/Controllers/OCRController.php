@@ -331,6 +331,10 @@ class OCRController extends Controller
         $borrower_email = $request->get('borrower_email');
         $coborrower = $request->get('coborrower');
         $coborrower_email = $request->get('coborrower_email');
+        if(empty($coborrower) || empty($coborrower_email))
+            $onlyborrower = true;
+        else
+            $onlyborrower = false;
 
         try {
             $time_start = microtime(true);
@@ -347,11 +351,11 @@ class OCRController extends Controller
                             $top = $block['top'] / $page['height'];
                             if(strpos($block['data'], 'BOR_1_SGF') !== false)
                                 $type = 'BOR_1_SGF';
-                            else if(strpos($block['data'], 'BOR_2_SGF') !== false)
+                            else if(!$onlyborrower && strpos($block['data'], 'BOR_2_SGF') !== false)
                                 $type = 'BOR_2_SGF';
                             else if(strpos($block['data'], 'BOR_1_DAT') !== false)
                                 $type = 'BOR_1_DAT';
-                            else if(strpos($block['data'], 'BOR_2_DAT') !== false)
+                            else if(!$onlyborrower && strpos($block['data'], 'BOR_2_DAT') !== false)
                                 $type = 'BOR_2_DAT';
                             else if(strpos($block['data'], 'SeparatorBorrowerCopy') !== false) {
                                 $type = 'BorrowerCopy';

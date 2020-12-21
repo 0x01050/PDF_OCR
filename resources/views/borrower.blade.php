@@ -101,14 +101,6 @@
                         borrower_email.focus();
                         return false;
                     }
-                    if (!data.formData.coborrower) {
-                        coborrower.focus();
-                        return false;
-                    }
-                    if (!data.formData.coborrower_email) {
-                        coborrower_email.focus();
-                        return false;
-                    }
                     return true;
                 });
                 $leads.fileupload({
