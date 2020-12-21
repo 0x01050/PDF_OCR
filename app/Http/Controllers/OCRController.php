@@ -299,6 +299,8 @@ class OCRController extends Controller
                 )
             );
         } catch (Throwable $e) {
+            if(isset($temp_pdf))
+                unlink($temp_pdf);
             unlink($filepath);
             Storage::disk('local')->deleteDirectory($key);
 
@@ -314,4 +316,230 @@ class OCRController extends Controller
         }
     }
 
+    public function borrowerScan(Request $request)
+    {
+        set_time_limit(0);
+        ini_set('memory_limit', '-1');
+
+        $file = $request->file('leads');
+        $key = time() . random_string();
+        $filepath = $file->storeAs('', $key . '.' . $file->getClientOriginalExtension());
+        $filepath = storage_path('app/' . $filepath);
+        $json_path = storage_path('app/' . $key . '.json');
+
+        $borrower = $request->get('borrower');
+        $coborrower = $request->get('coborrower');
+
+        try {
+            $time_start = microtime(true);
+
+            shell_exec(env('PDF2JSON_PATH') . ' -i ' . $filepath . ' ' . $json_path);
+            $pdf_parse = json_decode(utf8_encode(file_get_contents($json_path)), true);
+
+            $candidates = [];
+            foreach($pdf_parse as $page) {
+                if(isset($page['width']) && isset($page['height']) && isset($page['number']) && isset($page['text'])) {
+                    foreach($page['text'] as $block) {
+                        if(isset($block['width']) && isset($block['height']) && isset($block['data'])) {
+                            $left = $block['left'] / $page['width'];
+                            $top = $block['top'] / $page['height'];
+                            if(strpos($block['data'], 'BOR_1_SGF') !== false)
+                                $type = 'BOR_1_SGF';
+                            else if(strpos($block['data'], 'BOR_2_SGF') !== false)
+                                $type = 'BOR_2_SGF';
+                            else if(strpos($block['data'], 'BOR_1_DAT') !== false)
+                                $type = 'BOR_1_DAT';
+                            else if(strpos($block['data'], 'BOR_2_DAT') !== false)
+                                $type = 'BOR_2_DAT';
+                            else if(strpos($block['data'], 'SeparatorBorrowerCopy') !== false) {
+                                $type = 'BorrowerCopy';
+                                break;
+                            }
+                            else
+                                continue;
+                            array_push($candidates, array(
+                                'left' => $left,
+                                'top' => $top,
+                                'type' => $type,
+                                'page' => $page['number'],
+                            ));
+                        }
+                    }
+                    if(isset($type) && $type == 'BorrowerCopy')
+                        break;
+                }
+            }
+            error_log(json_encode($candidates));
+
+            // For DocuSign
+            $docusign = DocuSign::create();
+
+            $file_size = File::size($filepath)  / 1048576;
+            error_log('Filesize: ' . number_format($file_size, 2) . 'MB');
+
+            $pdf_count = ceil($file_size / 25);
+            $processed_pages = 0;
+
+            for($i = 1; $i <= $pdf_count; $i ++) {
+                $pdf = new Fpdi();
+                $page_count = $pdf->setSourceFile($filepath);
+
+                $pages_per_pdf = ceil($page_count / $pdf_count);
+                $last_page = min($pages_per_pdf * $i, $page_count);
+
+                // $email = 'tyler@southrivermtg.com'; // Retrieve from User DB by officer name
+                $email = 'adamf2400@gmail.com'; // For Debug
+                $borrowerSigns = [];
+                $coborrowerSigns = [];
+
+                for($j = $processed_pages + 1; $j <= $last_page; $j ++) {
+                    $templateId = $pdf->importPage($j);
+                    $size = $pdf->getTemplateSize($templateId);
+                    $viewport = 'P';
+                    if(isset($rotates[$j]) && $rotates[$j] > 0) {
+                        if($rotates[$j] != 180) {
+                            $viewport = 'L';
+                            swap($size['width'], $size['height']);
+                        }
+                        $size['Rotate'] = $rotates[$j];
+                    }
+                    $pdf->AddPage($viewport, $size);
+                    $pdf->useTemplate($templateId);
+
+                    $signCandidates = array_filter($candidates, function($sign) use($j) {
+                      return $sign['page'] === $j;
+                    });
+
+                    foreach($signCandidates as $sign) {
+                        $width = isset($size['width']) ? $size['width'] : (isset($size['w']) ? $size['w'] : (isset($size['0']) ? $size['0'] : 0));
+                        $height = isset($size['height']) ? $size['height'] : (isset($size['h']) ? $size['h'] : (isset($size['1']) ? $size['1'] : 0));
+
+                        $width = mmToPt($width);
+                        $height = mmToPt($height);
+
+                        $x_position = round($width * $sign['left']);
+                        $y_position = round($height * $sign['top'] - 20);
+                        $y_position = $y_position < 0 ? 0 : $y_position;
+
+                        if($width > $height) {
+                            swap($x_position, $y_position);
+                        }
+
+                        if($sign['type'] == 'BOR_1_SGF') {
+                            array_push($borrowerSigns, $docusign->signHere([
+                                'document_id' => '1',
+                                'page_number' => $sign['page'] - $processed_pages,
+                                'x_position'  => $x_position,
+                                'y_position'  => $y_position
+                            ]));
+                        } else if($sign['type'] == 'BOR_2_SGF') {
+                            array_push($coborrowerSigns, $docusign->signHere([
+                                'document_id' => '1',
+                                'page_number' => $sign['page'] - $processed_pages,
+                                'x_position'  => $x_position,
+                                'y_position'  => $y_position
+                            ]));
+                        }
+                    }
+                }
+
+                $temp_pdf = time() . random_string() . '.pdf';
+                $temp_pdf = storage_path('app/' . $temp_pdf);
+                $pdf->Output($temp_pdf, 'F');
+
+                $processed_pages += $j - 1;
+
+                $borrowerEnvelope = $docusign->envelopeDefinition([
+                    'status'        => 'sent',
+                    'email_subject' => 'Please sign this document',
+                    'email_blurb'   => 'Hi ' . $borrower . '<br>Please sign the above document.<br>Thank You, Tyler Plack',
+                    'recipients'    => $docusign->recipients([
+                        'signers' => [
+                            $docusign->signer([
+                                'email' 	    => $email,
+                                'name'  	    => $borrower,
+                                'recipient_id'  => '1',
+                                'routing_order' => '1',
+                                'tabs'          => $docusign->tabs([
+                                    'sign_here_tabs' => $borrowerSigns
+                                ])
+                            ])
+                        ]
+                    ]),
+                    'documents'     => [
+                        $docusign->document([
+                            'document_base64' => base64_encode(file_get_contents($temp_pdf)),
+                            'name'            => 'PDF for sign' . ($pdf_count > 1 ? ' (' . $i . ')' : ''),
+                            'document_id'     => '1'
+                        ])
+                    ]
+                ]);
+
+                $coborrowerEnvelope = $docusign->envelopeDefinition([
+                    'status'        => 'sent',
+                    'email_subject' => 'Please sign this document',
+                    'email_blurb'   => 'Hi ' . $coborrower . '<br>Please sign the above document.<br>Thank You, Tyler Plack',
+                    'recipients'    => $docusign->recipients([
+                        'signers' => [
+                            $docusign->signer([
+                                'email' 	    => $email,
+                                'name'  	    => $coborrower,
+                                'recipient_id'  => '1',
+                                'routing_order' => '1',
+                                'tabs'          => $docusign->tabs([
+                                    'sign_here_tabs' => $coborrowerSigns
+                                ])
+                            ])
+                        ]
+                    ]),
+                    'documents'     => [
+                        $docusign->document([
+                            'document_base64' => base64_encode(file_get_contents($temp_pdf)),
+                            'name'            => 'PDF for sign' . ($pdf_count > 1 ? ' (' . $i . ')' : ''),
+                            'document_id'     => '1'
+                        ])
+                    ]
+                ]);
+
+                if(!empty($borrowerSigns)) {
+                    $envelopeSummary = $docusign->envelopes->createEnvelope($borrowerEnvelope);
+                    error_log('Envelope ' . $envelopeSummary->getEnvelopeId() . ' with pdf for sign ' . $envelopeSummary->getStatus());
+                }
+                if(!empty($coborrowerSigns)) {
+                    $envelopeSummary = $docusign->envelopes->createEnvelope($coborrowerEnvelope);
+                    error_log('Envelope ' . $envelopeSummary->getEnvelopeId() . ' with pdf for sign ' . $envelopeSummary->getStatus());
+                }
+
+                unlink($temp_pdf);
+            }
+
+            unlink($json_path);
+            unlink($filepath);
+
+            $elapsed = microtime(true) - $time_start;
+            error_log('Success Finish : ' . $elapsed . 'ms');
+
+            return Response::json(array (
+                    'result' => 'success',
+                    'message' => 'Scan Success',
+                    'time' => $elapsed
+                )
+            );
+        } catch (Throwable $e) {
+            if(isset($temp_pdf))
+                unlink($temp_pdf);
+            unlink($json_path);
+            unlink($filepath);
+
+            $elapsed = microtime(true) - $time_start;
+            error_log('Error Finish : ' . $elapsed . 'ms');
+
+            return Response::json(array (
+                    'result' => 'error',
+                    'message' => 'Failed : ' . $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                )
+            );
+        }
+    }
 }

@@ -16,9 +16,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('scan');
-});
+})->name('home');
+Route::get('/borrower-docusign', function () {
+    return view('borrower');
+})->name('borowwer');
 
 Route::post('/import', ['as' => 'import', 'uses' => 'App\Http\Controllers\OCRController@scan']);
+Route::post('/borrower-import', ['as' => 'borrower-import', 'uses' => 'App\Http\Controllers\OCRController@borrowerScan']);
 
 Route::get('files/{file_name}', function($file_name = null)
 {

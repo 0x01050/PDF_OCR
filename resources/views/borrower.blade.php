@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Home : DemandConversions</title>
+        <title>Borrower Docusign : DemandConversions</title>
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -34,6 +34,11 @@
             {
                 white-space: pre-wrap;
             }
+            input[type='text']
+            {
+                border: 1px solid black;
+                box-sizing: content-box;
+            }
         </style>
 
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -42,10 +47,18 @@
     </head>
     <body class="antialiased bg-gray-100 dark:bg-gray-900">
         <div class="relative flex flex-horizontal flex-end px-6 pt-8">
-            <a href="{{ route('borowwer') }}">Borrower Docusign</a>
+            <a href="{{ route('home') }}">Home</a>
         </div>
         <div class="relative flex flex-vertical items-top justify-center min-h-screen items-center pt-0">
             <input type="hidden" id="leads_token" value="<?php echo csrf_token(); ?>">
+            <div>
+                <label>Borrower Name: </label>
+                <input type="text" name="borrower" id="borrower" />
+            </div>
+            <div>
+                <label>Co-Borrower Name: </label>
+                <input type="text" name="coborrower" id="coborrower" />
+            </div>
             <input type='file' name='leads' id="leads_upload" data-url="{{ route('borrower-import') }}"/>
             <label id="upload_progress">Ready for scan</label>
             <a id="download_link" href="" style="display: none;">Download Result</a>
@@ -60,10 +73,27 @@
 
             // Methods
             function init($leads) {
+                $leads.bind('fileuploadsubmit', function (e, data) {
+                    // The example input, doesn't have to be part of the upload form:
+                    var borrower = $('#borrower');
+                    var coborrower = $('#coborrower');
+                    data.formData = {
+                        borrower: borrower.val(),
+                        coborrower: coborrower.val()
+                    };
+                    if (!data.formData.borrower) {
+                        borrower.focus();
+                        return false;
+                    }
+                    if (!data.formData.coborrower) {
+                        coborrower.focus();
+                        return false;
+                    }
+                    return true;
+                });
                 $leads.fileupload({
                     dataType: "json",
                     add: function(e, data) {
-                        $("#download_link").css('display', 'none');
                         $("#upload_progress").text("0% ...");
                         data.submit();
                     },
@@ -77,9 +107,7 @@
                     },
                     done: function(e, data) {
                         if(data.result.result == 'success') {
-                            $("#download_link").css('display', 'inherit');
-                            $("#download_link").attr('href', data.result.link);
-                            $("#upload_progress").text(data.result.message + '\n' + 'Loan Officer : ' + data.result.officer);
+                            $("#upload_progress").text(data.result.message);
                         }
                         else if(data.result.result == 'error') {
                             $("#upload_progress").text(data.result.message + '\n' + data.result.trace);

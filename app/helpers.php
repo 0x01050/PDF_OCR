@@ -45,52 +45,46 @@ if (! function_exists('parseResult')) {
                 $text = preg_replace('/\s+/', '', $text);
                 $text = strtolower($text);
 
-                if(isset($item['Geometry']) && isset($item['Geometry']['BoundingBox']) && isset($item['Geometry']['BoundingBox']['Top'])) {
-                    $top = $item['Geometry']['BoundingBox']['Top'];
-
-                    if(strpos($text, 'fanniemaeform1009') === 0) { // Form 1009
-                        addTo($item['Page'], $results['Form 1009']);
-                    } else if($original == 'FannieMae') { // Form 1009
-                        addTo($item['Page'], $results['Form 1009']);
-                    } else if(strpos($text, 'fm1009addend') === 0) { // Remove from Form 1009
-                        removeFrom($item['Page'], $results['Form 1009']);
-                    } else if($text == 'borrowercertification' || $text == 'barrowercertification') { // Borrower Certification
-                        addTo($item['Page'], $results['Borrower Authorization']);
-                    } else if(strpos($text, 'borrowersauthorization') === 0) { // Borrower Authorization
-                        addTo($item['Page'], $results['Borrower Authorization']);
-                    } else if($original == 'Borrower\'s Certification and Authorization') { // Borrower's Certification and Authorization
-                        addTo($item['Page'], $results['Borrower Authorization']);
-                    } else if(strpos($text, 'hud-92902') !== false) { // Counseling Certificate
-                        addTo($item['Page'], $results['Counseling Certificate']);
-                    } else if($original == 'HECM Counseling') { // Counseling Certificate
-                        addTo($item['Page'], $results['Counseling Certificate']);
-                    } else if(strpos($text, 'certificatenumber') !== false) { // Counseling Certificate
-                        addTo($item['Page'], $results['Counseling Certificate']);
-                    } else if(strpos($text, 'hud-92901') !== false) { // Anti-Churning Form
-                        addTo($item['Page'], $results['Anti-Churning Form']);
-                    } else if(strpos($text, 'goodfaithestimate') === 0) { // GFE
-                        addTo($item['Page'], $results['GFE']);
-                    } else if(strpos($text, 'hud-92900a') !== false || strpos($text, 'hud-92900-a') !== false) { // HUD 92900A
-                        addTo($item['Page'], $results['HUD 92900A']);
-                    } else if($original == 'HUD/VA Addendum to Uniform Residential Loan Application') { // HUD 92900A
-                        addTo($item['Page'], $results['HUD 92900A']);
-                    } else if($original == 'Part III - Notices to Borrowers') { // HUD 92900A
-                        addTo($item['Page'], $results['HUD 92900A']);
-                    } else if(strpos($text, 'reversemortgagestate') === 0) { // Monthly Reverse Mortgage Statement
-                        addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
-                    } else if(strpos($text, 'reversemortgagestate') === 0) { // Monthly Reverse Mortgage Statement
-                        addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
-                    } else if($original == 'THIS IS NOT A BILL') { // Monthly Reverse Mortgage Statement
-                        addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
-                    } else if($original == 'DRIVER LICENSE' || $text == 'DRIVER\'S LICENSE') { // Driver's License
-                        addTo($item['Page'], $results['Driver\'s License']);
-                    } else if(strpos($text, 'beneficiary\'ssocialsecuritynumber') !== false) { // Social Security 1099
-                        addTo($item['Page'], $results['Social Security Income']);
-                    } else if(strpos($text, 'socialsecuritybenefit') !== false) { // Social Security Award Letter
-                        addTo($item['Page'], $results['Social Security Income']);
-                    }
-                } else {
-                    continue;
+                if(strpos($text, 'fanniemaeform1009') === 0) { // Form 1009
+                    addTo($item['Page'], $results['Form 1009']);
+                } else if($original == 'FannieMae') { // Form 1009
+                    addTo($item['Page'], $results['Form 1009']);
+                } else if(strpos($text, 'fm1009addend') === 0) { // Remove from Form 1009
+                    removeFrom($item['Page'], $results['Form 1009']);
+                } else if($text == 'borrowercertification' || $text == 'barrowercertification') { // Borrower Certification
+                    addTo($item['Page'], $results['Borrower Authorization']);
+                } else if(strpos($text, 'borrowersauthorization') === 0) { // Borrower Authorization
+                    addTo($item['Page'], $results['Borrower Authorization']);
+                } else if($original == 'Borrower\'s Certification and Authorization') { // Borrower's Certification and Authorization
+                    addTo($item['Page'], $results['Borrower Authorization']);
+                } else if(strpos($text, 'hud-92902') !== false) { // Counseling Certificate
+                    addTo($item['Page'], $results['Counseling Certificate']);
+                } else if($original == 'HECM Counseling') { // Counseling Certificate
+                    addTo($item['Page'], $results['Counseling Certificate']);
+                } else if(strpos($text, 'certificatenumber') !== false) { // Counseling Certificate
+                    addTo($item['Page'], $results['Counseling Certificate']);
+                } else if(strpos($text, 'hud-92901') !== false) { // Anti-Churning Form
+                    addTo($item['Page'], $results['Anti-Churning Form']);
+                } else if(strpos($text, 'goodfaithestimate') === 0) { // GFE
+                    addTo($item['Page'], $results['GFE']);
+                } else if(strpos($text, 'hud-92900a') !== false || strpos($text, 'hud-92900-a') !== false) { // HUD 92900A
+                    addTo($item['Page'], $results['HUD 92900A']);
+                } else if($original == 'HUD/VA Addendum to Uniform Residential Loan Application') { // HUD 92900A
+                    addTo($item['Page'], $results['HUD 92900A']);
+                } else if($original == 'Part III - Notices to Borrowers') { // HUD 92900A
+                    addTo($item['Page'], $results['HUD 92900A']);
+                } else if(strpos($text, 'reversemortgagestate') === 0) { // Monthly Reverse Mortgage Statement
+                    addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
+                } else if(strpos($text, 'reversemortgagestate') === 0) { // Monthly Reverse Mortgage Statement
+                    addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
+                } else if($original == 'THIS IS NOT A BILL') { // Monthly Reverse Mortgage Statement
+                    addTo($item['Page'], $results['Monthly Reverse Mortgage Statement']);
+                } else if($original == 'DRIVER LICENSE' || $text == 'DRIVER\'S LICENSE') { // Driver's License
+                    addTo($item['Page'], $results['Driver\'s License']);
+                } else if(strpos($text, 'beneficiary\'ssocialsecuritynumber') !== false) { // Social Security 1099
+                    addTo($item['Page'], $results['Social Security Income']);
+                } else if(strpos($text, 'socialsecuritybenefit') !== false) { // Social Security Award Letter
+                    addTo($item['Page'], $results['Social Security Income']);
                 }
             }
 
