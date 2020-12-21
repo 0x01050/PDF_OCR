@@ -46,7 +46,7 @@
         </div>
         <div class="relative flex flex-vertical items-top justify-center min-h-screen items-center pt-0">
             <input type="hidden" id="leads_token" value="<?php echo csrf_token(); ?>">
-            <input type='file' name='leads' id="leads_upload" data-url="{{ route('borrower-import') }}"/>
+            <input type='file' name='leads' id="leads_upload" data-url="{{ route('import') }}"/>
             <label id="upload_progress">Ready for scan</label>
             <a id="download_link" href="" style="display: none;">Download Result</a>
         </div>
