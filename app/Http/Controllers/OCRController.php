@@ -328,7 +328,9 @@ class OCRController extends Controller
         $json_path = storage_path('app/' . $key . '.json');
 
         $borrower = $request->get('borrower');
+        $borrower_email = $request->get('borrower_email');
         $coborrower = $request->get('coborrower');
+        $coborrower_email = $request->get('coborrower_email');
 
         try {
             $time_start = microtime(true);
@@ -387,7 +389,6 @@ class OCRController extends Controller
                 $pages_per_pdf = ceil($page_count / $pdf_count);
                 $last_page = min($pages_per_pdf * $i, $page_count);
 
-                $email = 'tyler@southrivermtg.com'; // Retrieve from User DB by officer name
                 $borrowerSigns = []; $borrowerDates = [];
                 $coborrowerSigns = []; $coborrowerDates = [];
 
@@ -472,7 +473,7 @@ class OCRController extends Controller
                     'recipients'    => $docusign->recipients([
                         'signers' => [
                             $docusign->signer([
-                                'email' 	    => $email,
+                                'email' 	    => $borrower_email,
                                 'name'  	    => $borrower,
                                 'recipient_id'  => '1',
                                 'routing_order' => '1',
@@ -499,7 +500,7 @@ class OCRController extends Controller
                     'recipients'    => $docusign->recipients([
                         'signers' => [
                             $docusign->signer([
-                                'email' 	    => $email,
+                                'email' 	    => $coborrower_email,
                                 'name'  	    => $coborrower,
                                 'recipient_id'  => '1',
                                 'routing_order' => '1',

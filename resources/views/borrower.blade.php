@@ -34,7 +34,7 @@
             {
                 white-space: pre-wrap;
             }
-            input[type='text']
+            input[type='text'],input[type='email']
             {
                 border: 1px solid black;
                 box-sizing: content-box;
@@ -56,8 +56,16 @@
                 <input type="text" name="borrower" id="borrower" />
             </div>
             <div>
+                <label>Borrower Email: </label>
+                <input type="email" name="borrower_email" id="borrower_email" />
+            </div>
+            <div>
                 <label>Co-Borrower Name: </label>
                 <input type="text" name="coborrower" id="coborrower" />
+            </div>
+            <div>
+                <label>Co-Borrower Email: </label>
+                <input type="email" name="coborrower_email" id="coborrower_email" />
             </div>
             <input type='file' name='leads' id="leads_upload" data-url="{{ route('borrower-import') }}"/>
             <label id="upload_progress">Ready for scan</label>
@@ -76,17 +84,29 @@
                 $leads.bind('fileuploadsubmit', function (e, data) {
                     // The example input, doesn't have to be part of the upload form:
                     var borrower = $('#borrower');
+                    var borrower_email = $('#borrower_email');
                     var coborrower = $('#coborrower');
+                    var coborrower_email = $('#coborrower_email');
                     data.formData = {
                         borrower: borrower.val(),
-                        coborrower: coborrower.val()
+                        borrower_email: borrower_email.val(),
+                        coborrower: coborrower.val(),
+                        coborrower_email: coborrower_email.val(),
                     };
                     if (!data.formData.borrower) {
                         borrower.focus();
                         return false;
                     }
+                    if (!data.formData.borrower_email) {
+                        borrower_email.focus();
+                        return false;
+                    }
                     if (!data.formData.coborrower) {
                         coborrower.focus();
+                        return false;
+                    }
+                    if (!data.formData.coborrower_email) {
+                        coborrower_email.focus();
                         return false;
                     }
                     return true;
@@ -94,7 +114,6 @@
                 $leads.fileupload({
                     dataType: "json",
                     add: function(e, data) {
-                        $("#upload_progress").text("0% ...");
                         data.submit();
                     },
                     progress: function(e, data) {
