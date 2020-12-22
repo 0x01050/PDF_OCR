@@ -196,4 +196,48 @@ if (! function_exists('swap')) {
         $right = $temp;
     }
 }
+
+if (! function_exists('parseForm')) {
+    function parseForm($blocks, &$words, &$forms) {
+        foreach($blocks as $item)
+        {
+            if(!isset($item['Id']))
+                $item['Id'] == '';
+            if(!isset($item['BlockType']))
+                $item['BlockType'] == '';
+            if(!isset($item['Page']))
+                $item['Page'] = 0;
+
+            if($item['BlockType'] == 'WORD')
+                $words[$item['Id']] = $item['Text'];
+
+            if($item['BlockType'] == 'KEY_VALUE_SET' && isset($item['EntityTypes'])) {
+
+                if(in_array('KEY', $item['EntityTypes'])) {
+                    $index = array_search('CHILD', array_column($item['Relationships'], 'Type'));
+                    if($index !== false) {
+                        $key = getFullWord($words, $item['Relationships'][$index]['Ids']);
+
+                        $key = preg_replace('/\s+/', '', $key);
+                        $key = strtolower($key);
+
+                        $index = array_search('VALUE', array_column($item['Relationships'], 'Type'));
+                        if($index !== false && !empty($item['Relationships'][$index]['Ids']))
+                            $forms[$key . $item['Id']] = $item['Relationships'][$index]['Ids'][0];
+                    }
+                }
+                if(in_array('VALUE', $item['EntityTypes'])) {
+                    $index = array_search($item['Id'], $forms);
+                    if(!isset($item['Relationships']) && isset($item['Geometry']) && isset($item['Geometry']['BoundingBox']))
+                        $forms[$index] = array(
+                            'Page' => $item['Page'],
+                            'Rect' => $item['Geometry']['BoundingBox']
+                        );
+                    else
+                        unset($forms[$index]);
+                }
+            }
+        }
+    }
+}
 ?>

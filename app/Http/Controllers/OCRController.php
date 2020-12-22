@@ -343,38 +343,185 @@ class OCRController extends Controller
             $pdf_parse = json_decode(utf8_encode(file_get_contents($json_path)), true);
 
             $candidates = [];
+            $needsOCR = [];
+            $page_type = 0;
+            $page_except = 0;
             foreach($pdf_parse as $page) {
-                if(isset($page['width']) && isset($page['height']) && isset($page['number']) && isset($page['text'])) {
-                    foreach($page['text'] as $block) {
-                        if(isset($block['width']) && isset($block['height']) && isset($block['data'])) {
-                            $left = $block['left'] / $page['width'];
-                            $top = $block['top'] / $page['height'];
-                            if(strpos($block['data'], 'BOR_1_SGF') !== false)
-                                $type = 'BOR_1_SGF';
-                            else if(!$onlyborrower && strpos($block['data'], 'BOR_2_SGF') !== false)
-                                $type = 'BOR_2_SGF';
-                            else if(strpos($block['data'], 'BOR_1_DAT') !== false)
-                                $type = 'BOR_1_DAT';
-                            else if(!$onlyborrower && strpos($block['data'], 'BOR_2_DAT') !== false)
-                                $type = 'BOR_2_DAT';
-                            else if(strpos($block['data'], 'SeparatorBorrowerCopy') !== false) {
-                                $type = 'BorrowerCopy';
-                                break;
+                if(isset($page['width']) && isset($page['height']) && isset($page['number'])) {
+                    if(!isset($page['text']) || empty($page['text'])) {
+                        if($page_type == 0)
+                            array_push($needsOCR, $page['number']);
+                        else
+                            continue;
+                    } else {
+                        foreach($page['text'] as $block) {
+                            if(isset($block['width']) && isset($block['height']) && isset($block['data'])) {
+                                $text = trim($block['data']);
+                                if(strpos($text, 'SeparatorSignedByBorrower') !== false) {
+                                    $page_type = 1;
+                                    continue;
+                                }
+                                if(strpos($text, 'SeparatorBorrowerCopy') !== false) {
+                                    $page_type = 2;
+                                    break;
+                                }
+                                if($page_type == 0) {
+                                    if($text === 'This!')
+                                        $page_except = $page['number'];
+                                    if($text === 'Borrower' && $page_except !== $page['number'])
+                                        $type = 'BORROWER';
+                                    if($text === 'Co-Borrower' && $page_except !== $page['number'])
+                                        $type = 'COBORROWER';
+                                    else
+                                        continue;
+                                }
+                                if($page_type == 1) {
+                                    if(strpos($text, 'BOR_1_SGF') !== false)
+                                        $type = 'BOR_1_SGF';
+                                    else if(!$onlyborrower && strpos($text, 'BOR_2_SGF') !== false)
+                                        $type = 'BOR_2_SGF';
+                                    else if(strpos($text, 'BOR_1_DAT') !== false)
+                                        $type = 'BOR_1_DAT';
+                                    else if(!$onlyborrower && strpos($text, 'BOR_2_DAT') !== false)
+                                        $type = 'BOR_2_DAT';
+                                    else
+                                        continue;
+                                }
+
+                                array_push($candidates, array(
+                                    'left' => $block['left'] / $page['width'],
+                                    'top' => $block['top'] / $page['height'],
+                                    'type' => $type,
+                                    'page' => $page['number'],
+                                ));
                             }
-                            else
-                                continue;
-                            array_push($candidates, array(
-                                'left' => $left,
-                                'top' => $top,
-                                'type' => $type,
-                                'page' => $page['number'],
-                            ));
                         }
+                        if($page_type == 2)
+                            break;
                     }
-                    if(isset($type) && $type == 'BorrowerCopy')
-                        break;
                 }
             }
+
+            // OCR image pages
+            if(!empty($needsOCR)) {
+                error_log(json_encode($needsOCR));
+                $pdf = new Fpdi();
+                $pdf->setSourceFile($filepath);
+                foreach($needsOCR as $ocrpage) {
+                    $templateId = $pdf->importPage($ocrpage);
+                    $size = $pdf->getTemplateSize($templateId);
+                    $pdf->AddPage('P', $size);
+                    $pdf->useTemplate($templateId);
+                }
+                $temp_pdf = time() . random_string() . '.pdf';
+                $temp_pdf = storage_path('app/' . $temp_pdf);
+                $pdf->Output($temp_pdf, 'F');
+
+                $provider = new Credentials(Config::get('aws.credentials.key'), Config::get('aws.credentials.secret'));
+                $s3 = new S3Client([
+                    'version'     => 'latest',
+                    'region'      => Config::get('aws.region'),
+                    'credentials' => $provider
+                ]);
+
+                $result = $s3->putObject(array(
+                    'Bucket'     => Config::get('aws.bucket'),
+                    'Key'        => $key,
+                    'SourceFile' => $temp_pdf,
+                ));
+
+                unlink($temp_pdf);
+
+                $path = $result['ObjectURL'];
+                error_log($path);
+
+                $elapsed = microtime(true) - $time_start;
+                error_log('Upload to S3 Finish : ' . $elapsed . 'ms');
+
+                $textract = new TextractClient(array(
+                    'version'     => 'latest',
+                    'region'      => Config::get('aws.region'),
+                    'credentials' => $provider
+                ));
+
+                $result = $textract->startDocumentAnalysis(array(
+                    'DocumentLocation' => array(
+                        'S3Object' => array(
+                            'Bucket' => Config::get('aws.bucket'),
+                            'Name' => $key
+                        )
+                    ),
+                    'FeatureTypes' => array('FORMS')
+                ));
+                $jobId = $result['JobId'];
+
+                $words = [];
+                $forms = [];
+
+                while(true) {
+                    $result = $textract->getDocumentAnalysis(array(
+                        'JobId' => $jobId
+                    ));
+                    $jobStatus = $result['JobStatus'];
+
+                    if($jobStatus == 'SUCCEEDED' || $jobStatus == 'FAILED')
+                    {
+                        if($jobStatus == 'SUCCEEDED')
+                        {
+                            parseForm($result['Blocks'], $words, $forms);
+
+                            $token = $result['NextToken'];
+                            while ($token != null)
+                            {
+                                $nextResult = $textract->getDocumentAnalysis(array(
+                                    'JobId' => $jobId,
+                                    'NextToken' => $token
+                                ));
+
+                                parseForm($nextResult['Blocks'], $words, $forms);
+                                $token = $nextResult['NextToken'];
+
+                                usleep(200 * 1000);
+                            }
+                        }
+                        break;
+                    }
+
+                    usleep(200 * 1000);
+                }
+
+                $s3->deleteObject(array(
+                    'Bucket'    => Config::get('aws.bucket'),
+                    'Key'       => $key
+                ));
+
+                if($jobStatus != 'SUCCEEDED') {
+                    unlink($filepath);
+
+                    $elapsed = microtime(true) - $time_start;
+                    error_log('Failed Finish : ' . $elapsed . 'ms');
+
+                    return Response::json(array (
+                            'result' => 'error',
+                            'message' => 'Scan ' . $jobStatus . ' on images'
+                        )
+                    );
+                }
+
+                error_log(json_encode($forms));
+
+                foreach($forms as $formkey => $rect) {
+                    if((strpos($formkey,  'homeownersignature&date') !== false)) {
+                        array_push($candidates, array(
+                            'left' => $rect['Rect']['Left'],
+                            'top' => $rect['Rect']['Top'],
+                            'type' => 'OCR_SIGN',
+                            'page' => $rect['Page'],
+                        ));
+                    }
+                }
+            }
+
             error_log(json_encode($candidates));
 
             // For DocuSign
@@ -399,15 +546,7 @@ class OCRController extends Controller
                 for($j = $processed_pages + 1; $j <= $last_page; $j ++) {
                     $templateId = $pdf->importPage($j);
                     $size = $pdf->getTemplateSize($templateId);
-                    $viewport = 'P';
-                    if(isset($rotates[$j]) && $rotates[$j] > 0) {
-                        if($rotates[$j] != 180) {
-                            $viewport = 'L';
-                            swap($size['width'], $size['height']);
-                        }
-                        $size['Rotate'] = $rotates[$j];
-                    }
-                    $pdf->AddPage($viewport, $size);
+                    $pdf->AddPage('P', $size);
                     $pdf->useTemplate($templateId);
 
                     $signCandidates = array_filter($candidates, function($sign) use($j) {
@@ -423,16 +562,19 @@ class OCRController extends Controller
 
                         $x_position = round($width * $sign['left']);
                         $y_position = round($height * $sign['top']);
-                        if($sign['type'] == 'BOR_1_SGF' || $sign['type'] == 'BOR_2_SGF') {
+                        if($sign['type'] == 'BOR_1_SGF' || $sign['type'] == 'BOR_2_SGF' || $sign['type'] == 'OCR_SIGN') {
                             $y_position = $y_position - 20;
-                            $y_position = $y_position < 0 ? 0 : $y_position;
                         }
+                        if($sign['type'] == 'BORROWER' || $sign['type'] == 'COBORROWER') {
+                            $y_position = $y_position - 35;
+                        }
+                        $y_position = $y_position < 0 ? 0 : $y_position;
 
                         if($width > $height) {
                             swap($x_position, $y_position);
                         }
 
-                        if($sign['type'] == 'BOR_1_SGF') {
+                        if($sign['type'] == 'BOR_1_SGF' || $sign['type'] == 'BORROWER' || $sign['type'] == 'OCR_SIGN') {
                             array_push($borrowerSigns, $docusign->signHere([
                                 'document_id' => '1',
                                 'page_number' => $sign['page'] - $processed_pages,
@@ -446,7 +588,7 @@ class OCRController extends Controller
                                 'x_position'  => $x_position,
                                 'y_position'  => $y_position
                             ]));
-                        } else if($sign['type'] == 'BOR_2_SGF') {
+                        } else if($sign['type'] == 'BOR_2_SGF' || $sign['type'] == 'COBORROWER') {
                             array_push($coborrowerSigns, $docusign->signHere([
                                 'document_id' => '1',
                                 'page_number' => $sign['page'] - $processed_pages,
