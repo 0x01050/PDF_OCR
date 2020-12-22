@@ -370,7 +370,7 @@ class OCRController extends Controller
                                         $page_except = $page['number'];
                                     if($text === 'Borrower' && $page_except !== $page['number'])
                                         $type = 'BORROWER';
-                                    if($text === 'Co-Borrower' && $page_except !== $page['number'])
+                                    if(!$onlyborrower && $text === 'Co-Borrower' && $page_except !== $page['number'])
                                         $type = 'COBORROWER';
                                     else
                                         continue;
