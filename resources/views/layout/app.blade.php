@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>SmartApp 1033 : DemandConversions</title>
+        <title>{{ $title }} : DemandConversions</title>
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -15,68 +15,15 @@
         </style>
         <link rel="stylesheet" type="text/css" href="/main.css"/>
 
-        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/zf-6.4.3/dt-1.10.23/r-2.2.7/datatables.min.css"/>
-        <script type="text/javascript" src="https://cdn.datatables.net/v/zf-6.4.3/dt-1.10.23/r-2.2.7/datatables.min.js"></script>
+        @stack('css')
     </head>
     <body class="antialiased bg-gray-100 dark:bg-gray-900">
-        <div class="relative flex flex-horizontal flex-end px-6 pt-8">
-            <a href="{{ route('home') }}" class="menu-item">Scan PDF</a>
-            <a href="{{ route('borowwer') }}" class="menu-item">Borrower Docusign</a>
-        </div>
+        @include('layout.menu')
         <div class="relative flex flex-vertical items-top justify-center min-h-screen items-center pt-0">
-            <input type="hidden" id="leads_token" value="<?php echo csrf_token(); ?>">
-            <table id="app_table" class="display">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Application Name</th>
-                        <th>Started On</th>
-                        <th>Last Updated</th>
-                        <th>Date Submitted</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-            </table>
+            @yield('content')
         </div>
 
-        <script>
-            $(document).ready(function() {
-                $('#app_table').DataTable( {
-                    columns: [
-                        { data: 'id', visible: false },
-                        { data: 'name', orderable: false, width: 150,
-                            render: function ( data, type, row ) {
-                                return `
-                                    <a href='/smartapp/edit/${row['id']}' class='underline'>${row['name']}</a>
-                                `;
-                            }
-                        },
-                        { data: 'created_at', orderable: false, width: 250 },
-                        { data: 'updated_at', orderable: false, width: 250 },
-                        { data: 'submitted_at', orderable: false, width: 250,
-                            render: function ( data, type, row ) {
-                                if(!row['submitted_at'])
-                                    return 'Not Submitted Yet';
-                                return row['submitted_at'];
-                            }
-                        },
-                        { data: null, orderable: false, width: 100,
-                            render: function ( data, type, row ) {
-                                return `
-                                    <div>
-                                        <a href='/smartapp/fnm/${row['id']}?_=${Date.now()}' class='btn btn-success actionTooltip' data-placement='bottom' title='' data-original-title='Download FNM 3.2'><i class='fa fa-file-text-o'></i>&nbsp;FNM</a>
-                                        <a href='/smartapp/pdf/${row['id']}?_=${Date.now()}' class='actionTooltip' data-placement='bottom' title='' data-original-title='Download PDF'><img src='/img/pdf_icon.png'></a>
-                                    </div>
-                                `;
-                            }
-                        }
-                    ],
-                    ajax: "{{ route('smartapp.get') }}",
-                    responsive: true,
-                    bFilter: false
-                } );
-            } );
-        </script>
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        @stack('js')
     </body>
 </html>

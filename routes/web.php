@@ -15,13 +15,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('scan');
+    return view('pdf.scan');
 })->name('home');
 Route::get('/borrower-docusign', function () {
-    return view('borrower');
+    return view('pdf.borrower');
 })->name('borowwer');
 Route::get('/smartapp-1033', function () {
-    return view('smartapp');
+    return view('smartapp.admin');
 })->name('smartapp');
 
 Route::post('/import', ['as' => 'import', 'uses' => 'App\Http\Controllers\OCRController@scan']);
@@ -41,4 +41,6 @@ Route::prefix('smartapp')->name('smartapp.')->group(function () {
     Route::get('/fnm/{id}', ['as' => 'fnm', 'uses' => 'App\Http\Controllers\SmartAppController@exportFNM']);
 
     Route::get('/get', ['as' => 'get', 'uses' => 'App\Http\Controllers\SmartAppController@getApps']);
+
+    Route::get('/edit/{id}/start', ['as' => 'start', 'uses' => 'App\Http\Controllers\SmartAppController@startApp']);
 });
