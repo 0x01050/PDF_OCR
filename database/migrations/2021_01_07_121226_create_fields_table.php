@@ -20,6 +20,7 @@ class CreateFieldsTable extends Migration
             $table->foreign('app_id')->references('id')->on('applications')->onDelete('cascade');
             $table->string('type');
             $table->string('model')->nullable();
+            $table->string('sub')->nullable();
             $table->string('name');
             $table->string('value')->nullable();
         });

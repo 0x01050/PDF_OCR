@@ -12,7 +12,7 @@ class Field extends Model
     protected $table = 'fields';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'name', 'app_id', 'type', 'name'
+        'app_id', 'type', 'model', 'sub', 'name', 'value'
     ];
 
     public function app() {

@@ -6,6 +6,6 @@
         <a href="{{ route('borowwer') }}" class="menu-item">Borrower Docusign</a>
     @endif
     @if(Route::current()->getName() != 'smartapp')
-        <a href="{{ route('smartapp') }}" class="menu-item">SmartApp 1033</a>
+        <a href="{{ route('smartapp') }}" class="menu-item">SmartApp 1003</a>
     @endif
 </div>

@@ -12,7 +12,7 @@ class Application extends Model
     protected $table = 'applications';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'name'
+        'name', 'submitted_at'
     ];
 
     public function fields() {

@@ -1,4 +1,4 @@
-@extends('layout.app', ['title' => 'SmartApp 1033'])
+@extends('layout.app', ['title' => 'SmartApp 1003'])
 
 @push('css')
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/zf-6.4.3/dt-1.10.23/r-2.2.7/datatables.min.css"/>
@@ -23,6 +23,14 @@
 @push('js')
     <script type="text/javascript" src="https://cdn.datatables.net/v/zf-6.4.3/dt-1.10.23/r-2.2.7/datatables.min.js"></script>
     <script>
+        function localize(t) {
+            var d = new Date(t + " UTC");
+            return d.toLocaleString();
+        }
+        function parseiso(t) {
+            var d = new Date(t);
+            return d.toLocaleString();
+        }
         $(document).ready(function() {
             $('#app_table').DataTable( {
                 columns: [
@@ -34,13 +42,21 @@
                             `;
                         }
                     },
-                    { data: 'created_at', orderable: false, width: 250 },
-                    { data: 'updated_at', orderable: false, width: 250 },
+                    { data: 'created_at', orderable: false, width: 250,
+                        render: function ( data, type, row ) {
+                            return parseiso(row['created_at']);
+                        }
+                    },
+                    { data: 'updated_at', orderable: false, width: 250,
+                        render: function ( data, type, row ) {
+                            return parseiso(row['updated_at']);
+                        }
+                    },
                     { data: 'submitted_at', orderable: false, width: 250,
                         render: function ( data, type, row ) {
                             if(!row['submitted_at'])
                                 return 'Not Submitted Yet';
-                            return row['submitted_at'];
+                            return localize(row['submitted_at']);
                         }
                     },
                     { data: null, orderable: false, width: 100,
