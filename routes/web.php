@@ -36,6 +36,7 @@ Route::get('files/{file_name}', function($file_name = null)
 });
 
 Route::prefix('smartapp')->name('smartapp.')->group(function () {
+    Route::get('/create/{name}', ['as' => 'create', 'uses' => 'App\Http\Controllers\SmartAppController@createApp']);
     Route::get('/edit/{id}', ['as' => 'edit', 'uses' => 'App\Http\Controllers\SmartAppController@editApp']);
     Route::get('/pdf/{id}', ['as' => 'pdf', 'uses' => 'App\Http\Controllers\SmartAppController@exportPDF']);
     Route::get('/fnm/{id}', ['as' => 'fnm', 'uses' => 'App\Http\Controllers\SmartAppController@exportFNM']);

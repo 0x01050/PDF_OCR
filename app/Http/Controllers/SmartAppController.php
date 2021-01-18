@@ -10,6 +10,11 @@ use App\Models\Field;
 
 class SmartAppController extends Controller
 {
+    public function createApp($name) {
+        $app = Application::create(['name' => $name]);
+        return Redirect::to(route('smartapp.edit', ['id' => $app->id]));
+    }
+
     public function editApp($id) {
         return Redirect::to(route('smartapp.start', ['id' => $id]));
     }
