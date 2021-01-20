@@ -82,7 +82,7 @@
         </div>
         <div class="answer">
             <div>
-                <input type='text' value="{{ (isset($borrower_income_other) ? $borrower_income_base_other : "") }}" class="updatable" name="other" data-type="borrower" data-model="income" style="width: calc(50% - 50px)" >
+                <input type='text' value="{{ (isset($borrower_income_other) ? $borrower_income_other : "") }}" class="updatable" name="other" data-type="borrower" data-model="income" style="width: calc(50% - 50px)" >
             </div>
         </div>
     </div>
