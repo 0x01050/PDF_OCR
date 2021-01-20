@@ -11,8 +11,10 @@
         </div>
         <div class="answer">
             <div>
-                <select class="updatable" name="mortgage_applied_for" data-type="property" data-model="loan" style="width: calc(50% - 50px)">
-                    <option {{ (!isset($property_loan_mortgage_applied_for) ? "selected" : "") }} disabled value="">Select</option>
+                <select class="updatable" name="mortgage_applied_for" data-type="property" data-model="loan" style="width: calc(50% - 50px)" data-on="other" data-target="#other_explain">
+                    @if(!isset($property_loan_mortgage_applied_for))
+                        <option selected disabled value="">Select</option>
+                    @endif
                     <option {{ (isset($property_loan_mortgage_applied_for) && $property_loan_mortgage_applied_for == "va" ? "selected" : "") }} value="va">VA</option>
                     <option {{ (isset($property_loan_mortgage_applied_for) && $property_loan_mortgage_applied_for == "fha" ? "selected" : "") }} value="fha">FHA</option>
                     <option {{ (isset($property_loan_mortgage_applied_for) && $property_loan_mortgage_applied_for == "conventional" ? "selected" : "") }} value="conventional">Conventional</option>
@@ -23,7 +25,8 @@
         </div>
     </div>
 
-    <div class="item-field">
+    <div class="item-field" id="other_explain"
+        style="display: {{ (isset($property_loan_mortgage_applied_for) && $property_loan_mortgage_applied_for == 'other') ? 'initial' : 'none' }};">
         <div class="question">
             Please Explain
         </div>
@@ -52,7 +55,9 @@
         <div class="answer">
             <div>
                 <select class="updatable" name="number_of_months" data-type="property" data-model="loan" style="width: calc(50% - 50px)">
-                    <option {{ (!isset($property_loan_number_of_months) ? "selected" : "") }} disabled value="">Select</option>
+                    @if(!isset($property_loan_number_of_months))
+                        <option selected disabled value="">Select</option>
+                    @endif
                     <option {{ (isset($property_loan_number_of_months) && $property_loan_number_of_months == "360" ? "selected" : "") }} value="360">360 months (30 years)</option>
                     <option {{ (isset($property_loan_number_of_months) && $property_loan_number_of_months == "240" ? "selected" : "") }} value="240">240 months (20 years)</option>
                     <option {{ (isset($property_loan_number_of_months) && $property_loan_number_of_months == "180" ? "selected" : "") }} value="180">180 months (15 years)</option>
@@ -71,8 +76,10 @@
         </div>
         <div class="answer">
             <div>
-                <select class="updatable" name="amortization_type" data-type="property" data-model="loan" style="width: calc(50% - 50px)">
-                    <option {{ (!isset($property_loan_amortization_type) ? "selected" : "") }} disabled value="">Select</option>
+                <select class="updatable" name="amortization_type" data-type="property" data-model="loan" style="width: calc(50% - 50px)" data-on="arm" data-target="#arm_type_field">
+                    @if(!isset($property_loan_amortization_type))
+                        <option selected disabled value="">Select</option>
+                    @endif
                     <option {{ (isset($property_loan_amortization_type) && $property_loan_amortization_type == "fixed-rate" ? "selected" : "") }} value="fixed-rate">Fixed Rate</option>
                     <option {{ (isset($property_loan_amortization_type) && $property_loan_amortization_type == "gpm" ? "selected" : "gpm") }} value="">GPM</option>
                     <option {{ (isset($property_loan_amortization_type) && $property_loan_amortization_type == "arm" ? "selected" : "") }} value="arm">ARM</option>
@@ -81,7 +88,8 @@
         </div>
     </div>
 
-    <div class="item-field">
+    <div class="item-field" id="arm_type_field"
+        style="display: {{ (isset($property_loan_amortization_type) && $property_loan_amortization_type == 'arm') ? 'initial' : 'none' }};">
         <div class="question">
             ARM Type
         </div>

@@ -9,27 +9,13 @@
         </div>
         <div class="answer">
             <div>
-                <input type="radio" value="yes" class="updatable" name="has_co_borrower" data-type="start" {{ (isset($start_has_co_borrower) && $start_has_co_borrower == "yes" ? "checked" : "") }}>
+                <input type="radio" value="yes" class="updatable" name="has_co_borrower" data-type="start" {{ (isset($start_has_co_borrower) && $start_has_co_borrower == "yes" ? "checked" : "") }} data-on="yes" data-target="#co-borrower-menu">
                 Yes
             </div>
             <div>
-                <input type="radio" value="no" class="updatable" name="has_co_borrower" data-type="start" {{ (isset($start_has_co_borrower) && $start_has_co_borrower == "no" ? "checked" : "") }}>
+                <input type="radio" value="no" class="updatable" name="has_co_borrower" data-type="start" {{ (isset($start_has_co_borrower) && $start_has_co_borrower == "no" ? "checked" : "") }} data-on="yes" data-target="#co-borrower-menu">
                 No
             </div>
         </div>
     </div>
 @endsection
-
-@push('js')
-    <script>
-        $(document).ready(function() {
-            $('input[name="has_co_borrower"]').change(function(event) {
-                field_value = $(event.target).val();
-                if(field_value == "yes")
-                    $("#co-borrower-menu").show();
-                else
-                    $("#co-borrower-menu").hide();
-            });
-        });
-    </script>
-@endpush

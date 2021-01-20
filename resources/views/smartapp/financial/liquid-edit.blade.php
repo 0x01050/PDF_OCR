@@ -31,7 +31,9 @@
         <div class="answer">
             <div>
                 <select class="updatable" name="type" data-type="financial" data-model="liquid" data-sub="{{$liq_id}}" style="width: calc(50% - 50px)">
-                    <option {{ (!isset($financial_liquid[$liq_id]['type']) ? "selected" : "") }} disabled value="">Select</option>
+                    @if(!isset($financial_liquid[$liq_id]['type']))
+                        <option selected disabled value="">Select</option>
+                    @endif
                     <option {{ (isset($financial_liquid[$liq_id]['type']) && $financial_liquid[$liq_id]['type'] == "savings-account" ? "selected" : "") }} value="savings-account">Savings Account</option>
                     <option {{ (isset($financial_liquid[$liq_id]['type']) && $financial_liquid[$liq_id]['type'] == "checking-account" ? "selected" : "") }} value="checking-account">Checking Account</option>
                     <option {{ (isset($financial_liquid[$liq_id]['type']) && $financial_liquid[$liq_id]['type'] == "stocks" ? "selected" : "") }} value="stocks">Stocks</option>

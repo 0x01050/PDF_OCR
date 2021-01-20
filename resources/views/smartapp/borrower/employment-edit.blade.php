@@ -12,7 +12,9 @@
         <div class="answer">
             <div>
                 <select class="updatable" name="self_employed" data-type="borrower" data-model="employment" data-sub="{{$emp_id}}" style="width: calc(50% - 50px)">
-                    <option {{ (!isset($borrower_employment[$emp_id]['self_employed']) ? "selected" : "") }} disabled value="">Select</option>
+                    @if(!isset($borrower_employment[$emp_id]['self_employed']))
+                        <option selected disabled value="">Select</option>
+                    @endif
                     <option {{ (isset($borrower_employment[$emp_id]['self_employed']) && $borrower_employment[$emp_id]['self_employed'] == "yes" ? "selected" : "") }} value="yes">Yes</option>
                     <option {{ (isset($borrower_employment[$emp_id]['self_employed']) && $borrower_employment[$emp_id]['self_employed'] == "no" ? "selected" : "") }} value="no">No</option>
                 </select>
@@ -71,7 +73,9 @@
         <div class="answer">
             <div>
                 <select class="updatable" name="state" data-type="borrower" data-model="employment" data-sub="{{$emp_id}}" style="width: calc(50% - 50px)">
-                    <option {{ (!isset($borrower_employment[$emp_id]['state']) ? "selected" : "") }} disabled value="">Select a State</option>
+                    @if(!isset($borrower_employment[$emp_id]['state']))
+                        <option selected disabled value="">Select a State</option>
+                    @endif
                     <option {{ (isset($borrower_employment[$emp_id]['state']) && $borrower_employment[$emp_id]['state'] == "AL" ? "selected" : "") }} value="AL">Alabama</option>
                     <option {{ (isset($borrower_employment[$emp_id]['state']) && $borrower_employment[$emp_id]['state'] == "AK" ? "selected" : "") }} value="AK">Alaska</option>
                     <option {{ (isset($borrower_employment[$emp_id]['state']) && $borrower_employment[$emp_id]['state'] == "AZ" ? "selected" : "") }} value="AZ">Arizona</option>
@@ -161,7 +165,8 @@
         </div>
     </div>
 
-    <div class="item-field">
+    <div class="item-field" id="end_date_field"
+    style="display: {{ (isset($borrower_employment[$emp_id]['currently_employed']) && $borrower_employment[$emp_id]['currently_employed'] == 'true') ? 'none' : 'initial' }};" >
         <div class="question">
             End Date
         </div>
@@ -175,7 +180,7 @@
     <div class="item-field">
         <div class="answer">
             <div>
-                <input type='checkbox' {{ (isset($borrower_employment[$emp_id]['currently_employed']) && $borrower_employment[$emp_id]['currently_employed'] == 'on' ? "checked" : "") }} class="updatable" name="currently_employed" data-type="borrower" data-model="employment" data-sub="{{$emp_id}}" >
+                <input type='checkbox' {{ (isset($borrower_employment[$emp_id]['currently_employed']) && $borrower_employment[$emp_id]['currently_employed'] == 'true' ? "checked" : "") }} class="updatable" name="currently_employed" data-type="borrower" data-model="employment" data-sub="{{$emp_id}}" data-on="false" data-target="#end_date_field" >
                 <label for="currently_employed">Currently Employed Here</label>
             </div>
         </div>

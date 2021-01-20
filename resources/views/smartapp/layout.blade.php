@@ -233,7 +233,21 @@
                 field_model = $(event.target).data('model');
                 field_sub = $(event.target).data('sub');
                 field_name = $(event.target).attr('name');
-                field_value = $(event.target).val();
+
+                input_type = $(event.target).attr('type');
+                if(input_type == 'checkbox')
+                    field_value = $(event.target).is(':checked');
+                else
+                    field_value = $(event.target).val();
+
+                on = $(event.target).data('on');
+                if(on !== undefined) {
+                    target = $(event.target).data('target');
+                    if(field_value == on)
+                        $(target).show();
+                    else
+                        $(target).hide();
+                }
 
                 $.post("{{ route('smartapp.update', ['id' => $id]) }}",
                     {

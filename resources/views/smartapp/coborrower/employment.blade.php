@@ -8,7 +8,12 @@
         <div class="list_items">
             @foreach ($coborrower_employment as $emp_id => $emp_var)
                 <a class="list_item" href="{{ route('smartapp.coborrower.employment.edit', ['id' => $id, 'emp_id' => $emp_id]) }}">
-                    {{ $emp_var['name'] }}
+                    <?php
+                        $name = '';
+                        if(isset($emp_var['name']))
+                            $name = $emp_var['name'];
+                    ?>
+                    {{ $name }}
                 </a>
             @endforeach
         </div>

@@ -102,7 +102,9 @@
         <div class="answer">
             <div>
                 <select class="updatable" name="marital_status" data-type="borrower" data-model="info" style="width: calc(50% - 50px)">
-                    <option {{ (!isset($borrower_info_marital_status) ? "selected" : "") }} disabled value="">Select</option>
+                    @if(!isset($borrower_info_marital_status))
+                        <option selected disabled value="">Select</option>
+                    @endif
                     <option {{ (isset($borrower_info_marital_status) && $borrower_info_marital_status == "married" ? "selected" : "") }} value="married">Married</option>
                     <option {{ (isset($borrower_info_marital_status) && $borrower_info_marital_status == "unmarried" ? "selected" : "") }} value="unmarried">Single</option>
                     <option {{ (isset($borrower_info_marital_status) && $borrower_info_marital_status == "separated" ? "selected" : "") }} value="separated">Separated</option>

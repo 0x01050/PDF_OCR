@@ -182,12 +182,12 @@ class SmartAppController extends Controller
             $maxEmp = 0;
         }
         return $this->baseView('smartapp.coborrower.employment',
-            ['id' => $id, 'new_emp' => $maxEmp + 1, 'top'=>'borrower', 'bottom' => 'employment', 'menu' => $this->coborrowerSubMenu, 'subtitle' => 'Co-Borrower\'s Employment History (List 2 Years of Employment)']
+            ['id' => $id, 'new_emp' => $maxEmp + 1, 'top'=>'coborrower', 'bottom' => 'employment', 'menu' => $this->coborrowerSubMenu, 'subtitle' => 'Co-Borrower\'s Employment History (List 2 Years of Employment)']
         );
     }
     public function coborrowerEmploymentEdit($id, $emp_id) {
         return $this->baseView('smartapp.coborrower.employment-edit',
-            ['id' => $id, 'emp_id' => $emp_id, 'top'=>'borrower', 'remove' => route('smartapp.borrower.employment.remove', ['id' => $id, 'emp_id' => $emp_id]), 'subtitle' => 'Co-Borrower\'s Employment History (List 2 Years of Employment)']
+            ['id' => $id, 'emp_id' => $emp_id, 'top'=>'coborrower', 'remove' => route('smartapp.borrower.employment.remove', ['id' => $id, 'emp_id' => $emp_id]), 'subtitle' => 'Co-Borrower\'s Employment History (List 2 Years of Employment)']
         );
     }
     public function coborrowerEmploymentRemove($id, $emp_id) {

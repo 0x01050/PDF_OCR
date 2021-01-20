@@ -31,7 +31,9 @@
         <div class="answer">
             <div>
                 <select class="updatable" name="status" data-type="financial" data-model="estate" data-sub="{{$est_id}}" style="width: calc(50% - 50px)">
-                    <option {{ (!isset($financial_estate[$est_id]['status']) ? "selected" : "") }} disabled value="">Select</option>
+                    @if(!isset($financial_estate[$est_id]['status']))
+                        <option selected disabled value="">Select</option>
+                    @endif
                     <option {{ (isset($financial_estate[$est_id]['status']) && $financial_estate[$est_id]['status'] == "sold" ? "selected" : "") }} value="sold">Sold</option>
                     <option {{ (isset($financial_estate[$est_id]['status']) && $financial_estate[$est_id]['status'] == "pending-sale" ? "selected" : "") }} value="pending-sale">Pending Sale</option>
                     <option {{ (isset($financial_estate[$est_id]['status']) && $financial_estate[$est_id]['status'] == "rental" ? "selected" : "") }} value="rental">Rental</option>
@@ -48,7 +50,9 @@
         <div class="answer">
             <div>
                 <select class="updatable" name="type_of_property" data-type="financial" data-model="estate" data-sub="{{$est_id}}" style="width: calc(50% - 50px)">
-                    <option {{ (!isset($financial_estate[$est_id]['type_of_property']) ? "selected" : "") }} disabled value="">Select</option>
+                    @if(!isset($financial_estate[$est_id]['type_of_property']))
+                        <option selected disabled value="">Select</option>
+                    @endif
                     <option {{ (isset($financial_estate[$est_id]['type_of_property']) && $financial_estate[$est_id]['type_of_property'] == "single-family-residence" ? "selected" : "") }} value="single-family-residence">Single Family Residence</option>
                     <option {{ (isset($financial_estate[$est_id]['type_of_property']) && $financial_estate[$est_id]['type_of_property'] == "two-to-fourplex" ? "selected" : "") }} value="two-to-fourplex">Two to Fourplex</option>
                     <option {{ (isset($financial_estate[$est_id]['type_of_property']) && $financial_estate[$est_id]['type_of_property'] == "commercial-non-residential" ? "selected" : "") }} value="commercial-non-residential">Commercial Non-residential</option>
@@ -106,7 +110,9 @@
         <div class="answer">
             <div>
                 <select class="updatable" name="state" data-type="financial" data-model="estate" data-sub="{{$est_id}}" style="width: calc(50% - 50px)">
-                    <option {{ (!isset($financial_estate[$est_id]['state']) ? "selected" : "") }} disabled value="">Select a State</option>
+                    @if(!isset($financial_estate[$est_id]['state']))
+                        <option selected disabled value="">Select a State</option>
+                    @endif
                     <option {{ (isset($financial_estate[$est_id]['state']) && $financial_estate[$est_id]['state'] == "AL" ? "selected" : "") }} value="AL">Alabama</option>
                     <option {{ (isset($financial_estate[$est_id]['state']) && $financial_estate[$est_id]['state'] == "AK" ? "selected" : "") }} value="AK">Alaska</option>
                     <option {{ (isset($financial_estate[$est_id]['state']) && $financial_estate[$est_id]['state'] == "AZ" ? "selected" : "") }} value="AZ">Arizona</option>
