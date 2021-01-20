@@ -5,11 +5,35 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Application;
 use App\Models\Field;
 
 class SmartAppController extends Controller
 {
+    public function extractFields($id, &$ret_arr) {
+        $fields = Field::where('app_id', $id)->get();
+        foreach($fields as $field) {
+            $key = $field->type;
+            if($field->model)
+                $key .= '_' . $field->model;
+            if($field->sub) {
+                $sub = $field->sub;
+                if(!isset($ret_arr[$key])) {
+                    $ret_arr[$key] = array();
+                }
+                if(!isset($ret_arr[$key][$sub])) {
+                    $ret_arr[$key][$sub] = array();
+                }
+                $ret_arr[$key][$sub][$field->name] = $field->value;
+            }
+            else {
+                $key .= '_' . $field->name;
+                $ret_arr[$key] = $field->value;
+            }
+        }
+    }
+
     public function createApp($name) {
         $app = Application::create(['name' => $name]);
         return Redirect::to(route('smartapp.edit', ['id' => $app->id]));
@@ -25,10 +49,19 @@ class SmartAppController extends Controller
         return Response::download(public_path('main.css'), $id.'.pdf', $headers);
     }
     public function exportFNM($id) {
+        $fields = array();
+        $this->extractFields($id, $fields);
+        $ret_file = writeToFNM($fields);
+
+        $down_file = $id;
+        $app = Application::where('id', $id)->first();
+        if($app) {
+            $down_file = $app->name;
+        }
         $headers = array(
             'Content-Type: application/octet-stream',
         );
-        return Response::download(public_path('main.css'), $id.'.fnm', $headers);
+        return Storage::download($ret_file, $down_file.'.fnm', $headers);
     }
 
     public function getApps() {
@@ -48,26 +81,7 @@ class SmartAppController extends Controller
     }
 
     private function baseView($name, $parameters) {
-        $fields = Field::where('app_id', $parameters['id'])->get();
-        foreach($fields as $field) {
-            $key = $field->type;
-            if($field->model)
-                $key .= '_' . $field->model;
-            if($field->sub) {
-                $sub = $field->sub;
-                if(!isset($parameters[$key])) {
-                    $parameters[$key] = array();
-                }
-                if(!isset($parameters[$key][$sub])) {
-                    $parameters[$key][$sub] = array();
-                }
-                $parameters[$key][$sub][$field->name] = $field->value;
-            }
-            else {
-                $key .= '_' . $field->name;
-                $parameters[$key] = $field->value;
-            }
-        }
+        $this->extractFields($parameters['id'], $parameters);
         return view($name, $parameters);
     }
 

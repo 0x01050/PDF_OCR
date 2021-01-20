@@ -40,7 +40,9 @@
     },
     "autoload": {
         "files": [
-            "app/helpers.php"
+            "app/helpers.php",
+            "app/fnm_helpers.php",
+            "app/pdf_helpers.php"
         ],
         "psr-4": {
             "App\\": "app/",

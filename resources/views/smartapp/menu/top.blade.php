@@ -35,7 +35,7 @@
     <a class="top-menu-item {{ $top == 'borrower' ? 'active' : ''  }}" href="{{ $top == 'borrower' ? '#' : route('smartapp.borrower.info', ['id' => $id]) }}">
         Borrower
     </a>
-    <a class="top-menu-item {{ $top == 'co-borrower' ? 'active' : ''  }}" href="{{ $top == 'co-borrower' ? '#' : route('smartapp.coborrower.info', ['id' => $id]) }}"
+    <a class="top-menu-item {{ $top == 'coborrower' ? 'active' : ''  }}" href="{{ $top == 'co-borrower' ? '#' : route('smartapp.coborrower.info', ['id' => $id]) }}"
         id='co-borrower-menu' style="display: {{ (isset($start_has_co_borrower) && $start_has_co_borrower == 'yes') ? 'initial' : 'none' }};">
         Co-Borrower
     </a>

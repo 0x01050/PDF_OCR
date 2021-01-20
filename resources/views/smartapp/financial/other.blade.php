@@ -1,6 +1,6 @@
 @extends('smartapp.layout', [
     'back_button' => route('smartapp.financial.estate', ['id' => $id]),
-    'next_button' => route('smartapp.financial.combined', ['id' => $id])
+    'next_button' => route('smartapp.disclosures.borrower', ['id' => $id])
 ])
 
 @section('smartapp-content')

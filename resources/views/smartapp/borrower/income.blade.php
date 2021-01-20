@@ -1,6 +1,6 @@
 @extends('smartapp.layout', [
     'back_button' => route('smartapp.borrower.employment', ['id' => $id]),
-    'next_button' => route('smartapp.property.loan', ['id' => $id])
+    'next_button' => (isset($start_has_co_borrower) && $start_has_co_borrower == 'yes') ? route('smartapp.coborrower.info', ['id' => $id]) : route('smartapp.property.loan', ['id' => $id])
 ])
 
 @section('smartapp-content')

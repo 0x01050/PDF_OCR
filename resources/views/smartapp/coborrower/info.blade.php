@@ -1,5 +1,5 @@
 @extends('smartapp.layout', [
-    'back_button' => route('smartapp.start', ['id' => $id]),
+    'back_button' => route('smartapp.borrower.income', ['id' => $id]),
     'next_button' => route('smartapp.coborrower.address', ['id' => $id])
 ])
 

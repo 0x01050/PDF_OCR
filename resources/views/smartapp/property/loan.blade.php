@@ -1,5 +1,6 @@
 @extends('smartapp.layout', [
     'back_button' => route('smartapp.borrower.income', ['id' => $id]),
+    'back_button' => (isset($start_has_co_borrower) && $start_has_co_borrower == 'yes') ? route('smartapp.coborrower.income', ['id' => $id]) : route('smartapp.borrower.income', ['id' => $id]),
     'next_button' => route('smartapp.property.purpose', ['id' => $id])
 ])
 
@@ -18,6 +19,17 @@
                     <option {{ (isset($property_loan_mortgage_applied_for) && $property_loan_mortgage_applied_for == "usda-rural-housing-service" ? "selected" : "") }} value="usda-rural-housing-service">USDA / Rural Housing Service</option>
                     <option {{ (isset($property_loan_mortgage_applied_for) && $property_loan_mortgage_applied_for == "other" ? "selected" : "") }} value="other">Other</option>
                 </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="item-field">
+        <div class="question">
+            Please Explain
+        </div>
+        <div class="answer">
+            <div>
+                <input type='text' value="{{ (isset($property_loan_other_mortgage_applied_for_explanation) ? $property_loan_other_mortgage_applied_for_explanation : "") }}" class="updatable" name="other_mortgage_applied_for_explanation" data-type="property" data-model="loan" style="width: calc(50% - 50px)" >
             </div>
         </div>
     </div>
@@ -65,6 +77,17 @@
                     <option {{ (isset($property_loan_amortization_type) && $property_loan_amortization_type == "gpm" ? "selected" : "gpm") }} value="">GPM</option>
                     <option {{ (isset($property_loan_amortization_type) && $property_loan_amortization_type == "arm" ? "selected" : "") }} value="arm">ARM</option>
                 </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="item-field">
+        <div class="question">
+            ARM Type
+        </div>
+        <div class="answer">
+            <div>
+                <input type='text' value="{{ (isset($property_loan_arm_type) ? $property_loan_arm_type : "") }}" class="updatable" name="arm_type" data-type="property" data-model="loan" style="width: calc(50% - 50px)" >
             </div>
         </div>
     </div>
