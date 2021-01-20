@@ -5,7 +5,7 @@
 ])
 
 @section('smartapp-content')
-    <div class="item-field">
+    <div class="item-field" style="display: {{ (isset($start_has_co_borrower) && $start_has_co_borrower == 'yes') ? 'initial' : 'none' }};">
         <div class="question">
             This asset belongs to:
             <div>
