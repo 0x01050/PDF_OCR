@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Support\Facades\File;
 
 if (! function_exists('writeToPDF')) {
@@ -11,4 +10,5 @@ if (! function_exists('writeToPDF')) {
         return $pdf_file;
     }
 }
+
 ?>

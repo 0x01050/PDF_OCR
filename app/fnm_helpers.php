@@ -1,63 +1,5 @@
 <?php
-
 use Illuminate\Support\Facades\Storage;
-
-if (! function_exists('randomID')) {
-  function randomID($length = 9) {
-    $characters = '0123456789abcdefghijklmnopqrstuvwxyz';
-    $charactersLength = strlen($characters);
-    $randomString = '';
-    for ($i = 0; $i < $length; $i++) {
-        $randomString .= $characters[rand(0, $charactersLength - 1)];
-    }
-    return $randomString;
-  }
-}
-if (! function_exists('fillWithBlank')) {
-    function fillWithBlank($length, $origin = '') {
-        while(strlen($origin) < $length) {
-            $origin .= ' ';
-        }
-        return substr($origin, 0, $length);
-    }
-}
-if (! function_exists('extractOnlyDigits')) {
-    function extractOnlyDigits($input) {
-        return preg_replace('/[^0-9]/', '', $input);
-    }
-}
-if (! function_exists('calcAge')) {
-    function calcAge($birthday) {
-        $dob = new DateTime($birthday);
-        $tdate = new DateTime();
-        $diff = $tdate->diff($dob);
-        return $diff->y;
-    }
-}
-if (! function_exists('calcYearAndMonth')) {
-    function calcYearAndMonth($startDate, &$year, &$month) {
-        $sd = new DateTime($startDate);
-        $tdate = new DateTime();
-        $diff = $tdate->diff($sd);
-        $year = $diff->y;
-        $month = $diff->m;
-    }
-}
-if (! function_exists('formatDate')) {
-    function formatDate($input = null) {
-        if($input == null)
-            $date = time();
-        else
-            $date = strtotime($input);
-        return date('Ymd', $date);
-    }
-}
-if (! function_exists('formatNumber')) {
-    function formatNumber($input, $up, $down) {
-        $number = number_format($input, $down, '.', '');
-        return $number;
-    }
-}
 
 if (! function_exists('writeToFNM')) {
     function writeToFNM($fields) {
@@ -1913,4 +1855,5 @@ if (! function_exists('writeETToFNM')) {
         array_push($ret_arr, $ret_str);
     }
 }
+
 ?>

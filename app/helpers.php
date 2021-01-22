@@ -11,7 +11,6 @@ if (! function_exists('random_string')) {
     return $randomString;
   }
 }
-
 if (! function_exists('parseResult')) {
     function parseResult($blocks, &$results, &$words, &$officer, &$officer_found, &$forms, &$rotates) {
         foreach($blocks as $item)
@@ -148,7 +147,6 @@ if (! function_exists('parseResult')) {
         }
     }
 }
-
 if (! function_exists('addTo')) {
     function addTo($page, &$results) {
         if(!in_array($page, $results, true)){
@@ -156,7 +154,6 @@ if (! function_exists('addTo')) {
         }
     }
 }
-
 if (! function_exists('removeFrom')) {
     function removeFrom($page, &$results) {
         $index = array_search($page, $results);
@@ -165,7 +162,6 @@ if (! function_exists('removeFrom')) {
         }
     }
 }
-
 if (! function_exists('getFullWord')) {
     function getFullWord($words, $childs) {
         $complete = '';
@@ -177,7 +173,6 @@ if (! function_exists('getFullWord')) {
         return trim($complete);
     }
 }
-
 if (! function_exists('mmToIn')) {
     function mmToIn ($val) {
         return $val * 0.0393701;
@@ -196,7 +191,6 @@ if (! function_exists('swap')) {
         $right = $temp;
     }
 }
-
 if (! function_exists('parseForm')) {
     function parseForm($blocks, &$words, &$forms) {
         foreach($blocks as $item)
@@ -238,6 +232,64 @@ if (! function_exists('parseForm')) {
                 }
             }
         }
+    }
+}
+
+
+if (! function_exists('randomID')) {
+    function randomID($length = 9) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyz';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
+}
+if (! function_exists('fillWithBlank')) {
+    function fillWithBlank($length, $origin = '') {
+        while(strlen($origin) < $length) {
+            $origin .= ' ';
+        }
+        return substr($origin, 0, $length);
+    }
+}
+if (! function_exists('extractOnlyDigits')) {
+    function extractOnlyDigits($input) {
+        return preg_replace('/[^0-9]/', '', $input);
+    }
+}
+if (! function_exists('calcAge')) {
+    function calcAge($birthday) {
+        $dob = new DateTime($birthday);
+        $tdate = new DateTime();
+        $diff = $tdate->diff($dob);
+        return $diff->y;
+    }
+}
+if (! function_exists('calcYearAndMonth')) {
+    function calcYearAndMonth($startDate, &$year, &$month) {
+        $sd = new DateTime($startDate);
+        $tdate = new DateTime();
+        $diff = $tdate->diff($sd);
+        $year = $diff->y;
+        $month = $diff->m;
+    }
+}
+if (! function_exists('formatDate')) {
+    function formatDate($input = null) {
+        if($input == null)
+            $date = time();
+        else
+            $date = strtotime($input);
+        return date('Ymd', $date);
+    }
+}
+if (! function_exists('formatNumber')) {
+    function formatNumber($input, $up, $down) {
+        $number = number_format($input, $down, '.', '');
+        return $number;
     }
 }
 ?>
