@@ -286,9 +286,24 @@ if (! function_exists('formatDate')) {
         return date('Ymd', $date);
     }
 }
+if (! function_exists('formatShortDate')) {
+    function formatShortDate($input = null) {
+        if($input == null)
+            $date = time();
+        else
+            $date = strtotime($input);
+        return date('m/d/y', $date);
+    }
+}
 if (! function_exists('formatNumber')) {
     function formatNumber($input, $up, $down) {
         $number = number_format($input, $down, '.', '');
+        return $number;
+    }
+}
+if (! function_exists('parseFloat')) {
+    function parseFloat($input) {
+        $number  = floatval($input);
         return $number;
     }
 }

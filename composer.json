@@ -17,6 +17,7 @@
         "laravel/tinker": "^2.5",
         "setasign/fpdi": "^2.3",
         "setasign/fpdi_pdf-parser": "^2.0",
+        "setasign/setapdf-formfiller_full_eval_ioncube_php7.1": "2.36.0.1597",
         "tecnickcom/tcpdf": "^6.3.5",
         "tucker-eric/laravel-docusign": "^4.1",
         "zanysoft/laravel-zip": "master"

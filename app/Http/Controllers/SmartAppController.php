@@ -43,30 +43,34 @@ class SmartAppController extends Controller
         return Redirect::to(route('smartapp.start', ['id' => $id]));
     }
     public function exportPDF($id) {
-        $fields = array();
-        $this->extractFields($id, $fields);
-        $ret_file = writeToPDF($fields);
-
         $down_file = $id;
+        $date_submitted = '';
         $app = Application::where('id', $id)->first();
         if($app) {
             $down_file = $app->name;
+            $date_submitted = $app->submitted_at;
         }
+
+        $fields = array();
+        $this->extractFields($id, $fields);
+        $ret_file = writeToPDF($fields, $date_submitted);
+
         $headers = array(
             'Content-Type: application/pdf',
         );
         return Storage::download($ret_file, $down_file.'.pdf', $headers);
     }
     public function exportFNM($id) {
-        $fields = array();
-        $this->extractFields($id, $fields);
-        $ret_file = writeToFNM($fields);
-
         $down_file = $id;
         $app = Application::where('id', $id)->first();
         if($app) {
             $down_file = $app->name;
         }
+
+        $fields = array();
+        $this->extractFields($id, $fields);
+        $ret_file = writeToFNM($fields);
+
         $headers = array(
             'Content-Type: application/octet-stream',
         );
