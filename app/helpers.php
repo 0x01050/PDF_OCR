@@ -222,7 +222,7 @@ if (! function_exists('parseForm')) {
                 }
                 if(in_array('VALUE', $item['EntityTypes'])) {
                     $index = array_search($item['Id'], $forms);
-                    if(!isset($item['Relationships']) && isset($item['Geometry']) && isset($item['Geometry']['BoundingBox']))
+                    if(isset($item['Geometry']) && isset($item['Geometry']['BoundingBox']))
                         $forms[$index] = array(
                             'Page' => $item['Page'],
                             'Rect' => $item['Geometry']['BoundingBox']

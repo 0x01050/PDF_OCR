@@ -365,6 +365,27 @@ class OCRController extends Controller
                                     $page_type = 2;
                                     break;
                                 }
+
+                                if(strpos($text, '&amp; Date:') !== false) {
+                                    $type = 'BORROWER_';
+                                    $left = ($block['left'] - 130) / $page['width'];
+                                    if($left > 0.4) {
+                                        $type = 'CO' . $type;
+                                    }
+                                    array_push($candidates, array(
+                                        'left' => $left,
+                                        'top' => $block['top'] / $page['height'],
+                                        'type' => $type . 'SGF',
+                                        'page' => $page['number'],
+                                    ));
+                                    array_push($candidates, array(
+                                        'left' => $left + 0.25,
+                                        'top' => $block['top'] / $page['height'],
+                                        'type' => $type . 'DAT',
+                                        'page' => $page['number'],
+                                    ));
+                                }
+
                                 if($page_type == 0) {
                                     if($text === 'This!')
                                         $page_except = $page['number'];
@@ -511,11 +532,27 @@ class OCRController extends Controller
                 error_log(json_encode($forms));
 
                 foreach($forms as $formkey => $rect) {
-                    if((strpos($formkey,  'homeownersignature&date') !== false)) {
+                    if((strpos($formkey,  'homeownersignature&date') !== false) ||
+                       (strpos($formkey,  'homeowner(borrowersignature&date') !== false) ||
+                       (strpos($formkey,  'homeownerborrower)signature&date') !== false) ||
+                       (strpos($formkey,  'homeowner(borrower)signature&date') !== false)) {
+
+                        $type = 1;
+                        if($rect['Rect']['Left'] > 0.4) {
+                            $type = 2;
+                        }
+
                         array_push($candidates, array(
                             'left' => $rect['Rect']['Left'],
                             'top' => $rect['Rect']['Top'],
-                            'type' => 'OCR_SIGN',
+                            'type' => 'OCR_' . $type . '_SGF',
+                            'page' => $rect['Page'],
+                        ));
+
+                        array_push($candidates, array(
+                            'left' => $rect['Rect']['Left'] + 0.25,
+                            'top' => $rect['Rect']['Top'],
+                            'type' => 'OCR_' . $type . '_DAT',
                             'page' => $rect['Page'],
                         ));
                     }
@@ -562,11 +599,17 @@ class OCRController extends Controller
 
                         $x_position = round($width * $sign['left']);
                         $y_position = round($height * $sign['top']);
-                        if($sign['type'] == 'BOR_1_SGF' || $sign['type'] == 'BOR_2_SGF' || $sign['type'] == 'OCR_SIGN') {
+                        if($sign['type'] == 'BOR_1_SGF' || $sign['type'] == 'BOR_2_SGF' || $sign['type'] == 'OCR_1_SGF' || $sign['type'] == 'OCR_2_SGF') {
                             $y_position = $y_position - 20;
                         }
                         if($sign['type'] == 'BORROWER' || $sign['type'] == 'COBORROWER') {
                             $y_position = $y_position - 35;
+                        }
+                        if($sign['type'] == 'BORROWER_SGF' || $sign['type'] == 'COBORROWER_SGF') {
+                            $y_position = $y_position - 10;
+                        }
+                        if($sign['type'] == 'BORROWER_DAT' || $sign['type'] == 'COBORROWER_DAT') {
+                            $y_position = $y_position + 10;
                         }
                         $y_position = $y_position < 0 ? 0 : $y_position;
 
@@ -574,28 +617,28 @@ class OCRController extends Controller
                             swap($x_position, $y_position);
                         }
 
-                        if($sign['type'] == 'BOR_1_SGF' || $sign['type'] == 'BORROWER' || $sign['type'] == 'OCR_SIGN') {
+                        if($sign['type'] == 'BOR_1_SGF' || $sign['type'] == 'BORROWER' || $sign['type'] == 'BORROWER_SGF' || $sign['type'] == 'OCR_1_SGF') {
                             array_push($borrowerSigns, $docusign->signHere([
                                 'document_id' => '1',
                                 'page_number' => $sign['page'] - $processed_pages,
                                 'x_position'  => $x_position,
                                 'y_position'  => $y_position
                             ]));
-                        } else if($sign['type'] == 'BOR_1_DAT') {
+                        } else if($sign['type'] == 'BOR_1_DAT' || $sign['type'] == 'BORROWER_DAT' || $sign['type'] == 'OCR_1_DAT') {
                             array_push($borrowerDates, $docusign->date([
                                 'document_id' => '1',
                                 'page_number' => $sign['page'] - $processed_pages,
                                 'x_position'  => $x_position,
                                 'y_position'  => $y_position
                             ]));
-                        } else if($sign['type'] == 'BOR_2_SGF' || $sign['type'] == 'COBORROWER') {
+                        } else if($sign['type'] == 'BOR_2_SGF' || $sign['type'] == 'COBORROWER' || $sign['type'] == 'COBORROWER_SGF' || $sign['type'] == 'OCR_2_SGF') {
                             array_push($coborrowerSigns, $docusign->signHere([
                                 'document_id' => '1',
                                 'page_number' => $sign['page'] - $processed_pages,
                                 'x_position'  => $x_position,
                                 'y_position'  => $y_position
                             ]));
-                        } else if($sign['type'] == 'BOR_2_DAT') {
+                        } else if($sign['type'] == 'BOR_2_DAT' || $sign['type'] == 'COBORROWER_DAT' || $sign['type'] == 'OCR_2_DAT') {
                             array_push($coborrowerDates, $docusign->date([
                                 'document_id' => '1',
                                 'page_number' => $sign['page'] - $processed_pages,
@@ -612,33 +655,36 @@ class OCRController extends Controller
 
                 $processed_pages += $j - 1;
 
+                $signers = [
+                    $docusign->signer([
+                        'email' 	    => $borrower_email,
+                        'name'  	    => $borrower,
+                        'recipient_id'  => '1',
+                        'routing_order' => '1',
+                        'tabs'          => $docusign->tabs([
+                            'sign_here_tabs' => $borrowerSigns,
+                            'date_signed_tabs' => $borrowerDates,
+                        ])
+                    ])
+                ];
+                if(!$onlyborrower) {
+                    array_push($signers, $docusign->signer([
+                        'email' 	    => $coborrower_email,
+                        'name'  	    => $coborrower,
+                        'recipient_id'  => '2',
+                        'routing_order' => '1',
+                        'tabs'          => $docusign->tabs([
+                            'sign_here_tabs' => $coborrowerSigns,
+                            'date_signed_tabs' => $coborrowerDates,
+                        ])
+                    ]));
+                }
                 $envelope = $docusign->envelopeDefinition([
                     'status'        => 'sent',
                     'email_subject' => 'Please sign this document',
                     'email_blurb'   => 'Hi ' . $borrower . ' and ' . $coborrower . '<br>Please sign the above document.<br>Thank You, Tyler Plack',
                     'recipients'    => $docusign->recipients([
-                        'signers' => [
-                            $docusign->signer([
-                                'email' 	    => $borrower_email,
-                                'name'  	    => $borrower,
-                                'recipient_id'  => '1',
-                                'routing_order' => '1',
-                                'tabs'          => $docusign->tabs([
-                                    'sign_here_tabs' => $borrowerSigns,
-                                    'date_signed_tabs' => $borrowerDates,
-                                ])
-                            ]),
-                            $docusign->signer([
-                                'email' 	    => $coborrower_email,
-                                'name'  	    => $coborrower,
-                                'recipient_id'  => '2',
-                                'routing_order' => '2',
-                                'tabs'          => $docusign->tabs([
-                                    'sign_here_tabs' => $coborrowerSigns,
-                                    'date_signed_tabs' => $coborrowerDates,
-                                ])
-                            ])
-                        ]
+                        'signers' => $signers
                     ]),
                     'documents'     => [
                         $docusign->document([
