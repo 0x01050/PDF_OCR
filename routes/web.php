@@ -62,6 +62,7 @@ Route::prefix('smartapp')->name('smartapp.')->group(function () {
 
     Route::get('/edit/{id}/property/loan', ['as' => 'property.loan', 'uses' => 'App\Http\Controllers\SmartAppController@propertyLoan']);
     Route::get('/edit/{id}/property/purpose', ['as' => 'property.purpose', 'uses' => 'App\Http\Controllers\SmartAppController@propertyPurpose']);
+    Route::get('/edit/{id}/property/subject', ['as' => 'property.subject', 'uses' => 'App\Http\Controllers\SmartAppController@propertySubject']);
 
     Route::get('/edit/{id}/financial/liquid', ['as' => 'financial.liquid', 'uses' => 'App\Http\Controllers\SmartAppController@financialLiquid']);
     Route::get('/edit/{id}/financial/liquid/edit/{liq_id}', ['as' => 'financial.liquid.edit', 'uses' => 'App\Http\Controllers\SmartAppController@financialLiquidEdit']);

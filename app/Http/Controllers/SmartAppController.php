@@ -224,6 +224,9 @@ class SmartAppController extends Controller
         ),
         array(
             'name' => 'purpose', 'title' => 'Purpose', 'link' => 'smartapp.property.purpose'
+        ),
+        array(
+            'name' => 'subject', 'title' => 'Subject', 'link' => 'smartapp.property.subject'
         )
     ];
     public function propertyLoan($id) {
@@ -234,6 +237,11 @@ class SmartAppController extends Controller
     public function propertyPurpose($id) {
         return $this->baseView('smartapp.property.purpose',
             ['id' => $id, 'top'=>'property', 'bottom' => 'purpose', 'menu' => $this->propertySubMenu, 'subtitle' => 'Loan Purpose']
+        );
+    }
+    public function propertySubject($id) {
+        return $this->baseView('smartapp.property.subject',
+            ['id' => $id, 'top'=>'property', 'bottom' => 'subject', 'menu' => $this->propertySubMenu, 'subtitle' => 'Subject Property Address']
         );
     }
 

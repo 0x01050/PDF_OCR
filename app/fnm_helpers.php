@@ -235,15 +235,47 @@ if (! function_exists('write02AToFNM')) {
     function write02AToFNM(&$ret_arr, $fields) {
         $ret_str = '';
         $ret_str .= fillWithBlank(3, '02A');                        // 02A-010
-        $ret_str .= fillWithBlank(50);                              // 02A-020
-        $ret_str .= fillWithBlank(35);                              // 02A-030
-        $ret_str .= fillWithBlank(2);                               // 02A-040
-        $ret_str .= fillWithBlank(5);                               // 02A-050
-        $ret_str .= fillWithBlank(4);                               // 02A-060
-        $ret_str .= fillWithBlank(3, '1');                          // 02A-070
+        $var_020 = '';
+        if(isset($fields['property_subject_address_1'])) {
+            $var_020 = $fields['property_subject_address_1'];
+        }
+        if(isset($fields['property_subject_address_2'])) {
+            $var_020 .= ', ' . $fields['property_subject_address_2'];
+        }
+        $var_020 = trim($var_020, ', ');
+        $ret_str .= fillWithBlank(50, $var_020);                    // 02A-020
+        $var_030 = '';
+        if(isset($fields['property_subject_city'])) {
+            $var_030 = $fields['property_subject_city'];
+        }
+        $ret_str .= fillWithBlank(35, $var_030);                    // 02A-030
+        $var_040 = '';
+        if(isset($fields['property_subject_state'])) {
+            $var_040 = $fields['property_subject_state'];
+        }
+        $ret_str .= fillWithBlank(2, $var_040);                     // 02A-040
+        $var_050 = '';
+        if(isset($fields['property_subject_zip_code'])) {
+            $var_050 = $fields['property_subject_zip_code'];
+        }
+        $ret_str .= fillWithBlank(5, $var_050);                     // 02A-050
+        $var_060 = '';
+        if(isset($fields['property_subject_zip_code_4'])) {
+            $var_060 = $fields['property_subject_zip_code_4'];
+        }
+        $ret_str .= fillWithBlank(4, $var_060);                     // 02A-060
+        $var_070 = '';
+        if(isset($fields['property_subject_no_units'])) {
+            $var_070 = $fields['property_subject_no_units'];
+        }
+        $ret_str .= fillWithBlank(3, $var_070);                     // 02A-070
         $ret_str .= fillWithBlank(2);                               // 02A-090
         $ret_str .= fillWithBlank(80);                              // 02A-090
-        $ret_str .= fillWithBlank(4);                               // 02A-100
+        $var_100 = '';
+        if(isset($fields['property_subject_year_built'])) {
+            $var_100 = $fields['property_subject_year_built'];
+        }
+        $ret_str .= fillWithBlank(4, $var_100);                     // 02A-100
         array_push($ret_arr, $ret_str);
     }
 }
@@ -309,8 +341,18 @@ if (! function_exists('write02DToFNM')) {
     function write02DToFNM(&$ret_arr, $fields) {
         $ret_str = '';
         $ret_str .= fillWithBlank(3, '02D');                        // 02D-010
-        $ret_str .= fillWithBlank(4);                               // 02D-020
-        $ret_str .= fillWithBlank(15);                              // 02D-030
+        $var_020 = '';
+        $var_030 = '';
+        if(isset($fields['property_purpose_purpose_of_loan']) && $fields['property_purpose_purpose_of_loan'] == 'refinance') {
+            if(isset($fields['property_purpose_year_acquired'])) {
+                $var_020 = $fields['property_purpose_year_acquired'];
+            }
+            if(isset($fields['property_purpose_original_cost'])) {
+                $var_030 = formatNumber($fields['property_purpose_original_cost'], 12, 2);
+            }
+        }
+        $ret_str .= fillWithBlank(4, $var_020);                     // 02D-020
+        $ret_str .= fillWithBlank(15, $var_030);                    // 02D-030
         $var_040 = '';
         if(isset($fields['property_purpose_purpose_of_loan']) &&
             ($fields['property_purpose_purpose_of_loan'] == 'refinance' || $fields['property_purpose_purpose_of_loan'] == 'construction' || $fields['property_purpose_purpose_of_loan'] == 'construction-permanent')) {
@@ -1293,7 +1335,15 @@ if (! function_exists('write08ASubToFNM')) {
             }
         }
         $ret_str .= fillWithBlank(1, $var_150);                     // 08A-150
-        $ret_str .= fillWithBlank(2);                               // 08A-160
+        $var_160 = '';
+        if($var_140 == 'Y' && isset($fields['disclosures_' . $midfix . 'borrower_hold_title'])) {
+            switch($fields['disclosures_' . $midfix . 'borrower_hold_title']) {
+                case 'sole':                            $var_160 = '01'; break;
+                case 'joint':                           $var_160 = '25'; break;
+                case 'joint_with_other_than_spouse':    $var_160 = '26'; break;
+            }
+        }
+        $ret_str .= fillWithBlank(2, $var_160);                     // 08A-160
         array_push($ret_arr, $ret_str);
     }
 }
@@ -1631,7 +1681,11 @@ if (! function_exists('writeLNCToFNM')) {
         $ret_str .= fillWithBlank(3, 'LNC');                        // LNC-010
         $ret_str .= fillWithBlank(1);                               // LNC-020
         $ret_str .= fillWithBlank(1);                               // LNC-030
-        $ret_str .= fillWithBlank(2);                               // LNC-040
+        $var_040 = '';
+        if(isset($fields['property_subject_type'])) {
+            $var_040 = $fields['property_subject_type'];
+        }
+        $ret_str .= fillWithBlank(2, $var_040);                     // LNC-040
         $ret_str .= fillWithBlank(2);                               // LNC-050
         $ret_str .= fillWithBlank(2);                               // LNC-060
         $ret_str .= fillWithBlank(2);                               // LNC-070

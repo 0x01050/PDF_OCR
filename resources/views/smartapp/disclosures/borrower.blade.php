@@ -208,12 +208,31 @@
         </div>
         <div class="answer">
             <div>
-                <input type="radio" value="yes" class="updatable" name="ownership_interest" data-type="disclosures" data-model="borrower" {{ (isset($disclosures_borrower_ownership_interest) && $disclosures_borrower_ownership_interest == "yes" ? "checked" : "") }}>
+                <input type="radio" value="yes" class="updatable" name="ownership_interest" data-type="disclosures" data-model="borrower" {{ (isset($disclosures_borrower_ownership_interest) && $disclosures_borrower_ownership_interest == "yes" ? "checked" : "") }} data-on="yes" data-target="#hold_title_field">
                 Yes
             </div>
             <div>
-                <input type="radio" value="no" class="updatable" name="ownership_interest" data-type="disclosures" data-model="borrower" {{ (isset($disclosures_borrower_ownership_interest) && $disclosures_borrower_ownership_interest == "no" ? "checked" : "") }}>
+                <input type="radio" value="no" class="updatable" name="ownership_interest" data-type="disclosures" data-model="borrower" {{ (isset($disclosures_borrower_ownership_interest) && $disclosures_borrower_ownership_interest == "no" ? "checked" : "") }} data-on="yes" data-target="#hold_title_field">
                 No
+            </div>
+        </div>
+    </div>
+
+    <div class="item-field" id="hold_title_field"
+        style="display: {{ (isset($disclosures_borrower_ownership_interest) && $disclosures_borrower_ownership_interest == 'yes') ? 'initial' : 'none' }};">
+        <div class="question">
+            How did you hold title
+        </div>
+        <div class="answer">
+            <div>
+                <select class="updatable" name="hold_title" data-type="disclosures" data-model="borrower" style="width: calc(50% - 50px)">
+                    @if(!isset($disclosures_borrower_hold_title))
+                        <option selected disabled value="">Select</option>
+                    @endif
+                    <option {{ (isset($disclosures_borrower_hold_title) && $disclosures_borrower_hold_title == "sole" ? "selected" : "") }} value="sole">Sole (individual)</option>
+                    <option {{ (isset($disclosures_borrower_hold_title) && $disclosures_borrower_hold_title == "joint" ? "selected" : "") }} value="joint">Joint With Spouse</option>
+                    <option {{ (isset($disclosures_borrower_hold_title) && $disclosures_borrower_hold_title == "joint_with_other_than_spouse" ? "selected" : "") }} value="joint_with_other_than_spouse">Joint With Other Than Spouse</option>
+                </select>
             </div>
         </div>
     </div>

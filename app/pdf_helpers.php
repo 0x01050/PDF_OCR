@@ -63,6 +63,35 @@ if (! function_exists('writeSection1ToPDF')) {
 }
 if (! function_exists('writeSection2ToPDF')) {
     function writeSection2ToPDF(&$pdfFields, $fields) {
+        $address = '';
+        if(isset($fields['property_subject_address_1'])) {
+            $address = $fields['property_subject_address_1'];
+        }
+        if(isset($fields['property_subject_address_2'])) {
+            $address .= ', ' . $fields['property_subject_address_2'];
+        }
+        if(isset($fields['property_subject_city'])) {
+            $address .= ', ' . $fields['property_subject_city'];
+        }
+        if(isset($fields['property_subject_state'])) {
+            $address .= ', ' . $fields['property_subject_state'];
+        }
+        if(isset($fields['property_subject_zip_code'])) {
+            $address .= ', ' . $fields['property_subject_zip_code'];
+        }
+        $address = trim($address, ', ');
+        $pdfFields['Subject Property Address']->setValue($address);
+        $noUnits = '';
+        if(isset($fields['property_subject_no_units'])) {
+            $noUnits = $fields['property_subject_no_units'];
+        }
+        $pdfFields['No of Units']->setValue($noUnits);
+        $yearBuilt = '';
+        if(isset($fields['property_subject_year_built'])) {
+            $yearBuilt = $fields['property_subject_year_built'];
+        }
+        $pdfFields['Year Built']->setValue($yearBuilt);
+
         $loanPurpose = '';
         $amountExistingLiensKey = '';
         if(isset($fields['property_purpose_purpose_of_loan'])) {
@@ -86,6 +115,14 @@ if (! function_exists('writeSection2ToPDF')) {
         if($amountExistingLiensKey != '' && isset($fields['property_purpose_amount_existing_liens'])) {
             $amountExistingLiens = parseFloat($fields['property_purpose_amount_existing_liens']);
             $pdfFields[$amountExistingLiensKey]->setValue($amountExistingLiens);
+        }
+        if($loanPurpose == 'Refinance' && isset($fields['property_purpose_year_acquired'])) {
+            $yearAcquired = $fields['property_purpose_year_acquired'];
+            $pdfFields['Year Lot Acquired 2']->setValue($yearAcquired);
+        }
+        if($loanPurpose == 'Refinance' && isset($fields['property_purpose_original_cost'])) {
+            $originalCost = parseFloat($fields['property_purpose_original_cost']);
+            $pdfFields['Original Cost 2']->setValue($originalCost);
         }
         if($loanPurpose == 'Refinance' && isset($fields['property_purpose_purpose_of_refinance'])) {
             $refinancePurpose = '';
@@ -556,6 +593,17 @@ if (! function_exists('writeSection8SubToPDF')) {
             if(isset($fields['disclosures_' . $paramKeyPrefix . 'borrower_' . $paramSubKeys[$i]])) {
                 $value = $fields['disclosures_' . $paramKeyPrefix . 'borrower_' . $paramSubKeys[$i]];
                 $pdfFields[$pdfKeyPrefix . 'Borrower ' . $pdfSubKeys[$i]]->setValue($value);
+            }
+        }
+        if(isset($fields['disclosures_' . $paramKeyPrefix . 'borrower_ownership_interest']) && $fields['disclosures_' . $paramKeyPrefix . 'borrower_ownership_interest'] == 'yes') {
+            if(isset($fields['disclosures_' . $paramKeyPrefix . 'borrower_hold_title'])) {
+                $value = '';
+                switch($fields['disclosures_' . $paramKeyPrefix . 'borrower_hold_title']) {
+                    case 'sole':                            $value = 'S'; break;
+                    case 'joint':                           $value = 'SP'; break;
+                    case 'joint_with_other_than_spouse':    $value = 'O'; break;
+                }
+                $pdfFields['m2 ' . $paramKeyPrefix . 'borrower']->setValue($value);
             }
         }
     }

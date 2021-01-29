@@ -1,6 +1,6 @@
 @extends('smartapp.layout', [
     'back_button' => route('smartapp.property.loan', ['id' => $id]),
-    'next_button' => route('smartapp.financial.liquid', ['id' => $id])
+    'next_button' => route('smartapp.property.subject', ['id' => $id])
 ])
 
 @section('smartapp-content')
@@ -61,6 +61,30 @@
         <div class="answer">
             <div>
                 <input type='text' value="{{ (isset($property_purpose_purchase_price) ? $property_purpose_purchase_price : "") }}" class="updatable" name="purchase_price" data-type="property" data-model="purpose" style="width: calc(50% - 50px)" >
+            </div>
+        </div>
+    </div>
+
+    <div class="item-field" id="year_acquired_field"
+        style="display: {{ (isset($property_purpose_purpose_of_loan) && ($property_purpose_purpose_of_loan == 'refinance')) ? 'initial' : 'none' }};">
+        <div class="question">
+            Year Acquired
+        </div>
+        <div class="answer">
+            <div>
+                <input type='text' value="{{ (isset($property_purpose_year_acquired) ? $property_purpose_year_acquired : "") }}" class="updatable" name="year_acquired" data-type="property" data-model="purpose" style="width: calc(50% - 50px)" >
+            </div>
+        </div>
+    </div>
+
+    <div class="item-field" id="original_cost_field"
+        style="display: {{ (isset($property_purpose_purpose_of_loan) && ($property_purpose_purpose_of_loan == 'refinance')) ? 'initial' : 'none' }};">
+        <div class="question">
+            Original Cost
+        </div>
+        <div class="answer">
+            <div>
+                <input type='text' value="{{ (isset($property_purpose_original_cost) ? $property_purpose_original_cost : "") }}" class="updatable" name="original_cost" data-type="property" data-model="purpose" style="width: calc(50% - 50px)" >
             </div>
         </div>
     </div>
@@ -171,24 +195,36 @@
                         $("#gift_amount_field").show();
                     else
                         $("#gift_amount_field").hide();
+
+                    $("#year_acquired_field").hide();
+                    $("#original_cost_field").hide();
                 }
                 if(purpose == 'refinance') {
                     $("#amount_existing_liens_field").show();
                     $("#purpose_of_refinance_field").show();
                     $("#down_payment_source_field").hide();
                     $("#gift_amount_field").hide();
+
+                    $("#year_acquired_field").show();
+                    $("#original_cost_field").show();
                 }
                 if(purpose == 'construction' || purpose == 'construction-permanent') {
                     $("#amount_existing_liens_field").show();
                     $("#purpose_of_refinance_field").hide();
                     $("#down_payment_source_field").hide();
                     $("#gift_amount_field").hide();
+
+                    $("#year_acquired_field").hide();
+                    $("#original_cost_field").hide();
                 }
                 if(purpose == 'other') {
                     $("#amount_existing_liens_field").hide();
                     $("#purpose_of_refinance_field").hide();
                     $("#down_payment_source_field").hide();
                     $("#gift_amount_field").hide();
+
+                    $("#year_acquired_field").hide();
+                    $("#original_cost_field").hide();
                 }
             });
         });
