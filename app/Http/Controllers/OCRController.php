@@ -612,10 +612,10 @@ class OCRController extends Controller
 
                 $processed_pages += $j - 1;
 
-                $borrowerEnvelope = $docusign->envelopeDefinition([
+                $envelope = $docusign->envelopeDefinition([
                     'status'        => 'sent',
                     'email_subject' => 'Please sign this document',
-                    'email_blurb'   => 'Hi ' . $borrower . '<br>Please sign the above document.<br>Thank You, Tyler Plack',
+                    'email_blurb'   => 'Hi ' . $borrower . ' and ' . $coborrower . '<br>Please sign the above document.<br>Thank You, Tyler Plack',
                     'recipients'    => $docusign->recipients([
                         'signers' => [
                             $docusign->signer([
@@ -627,29 +627,12 @@ class OCRController extends Controller
                                     'sign_here_tabs' => $borrowerSigns,
                                     'date_signed_tabs' => $borrowerDates,
                                 ])
-                            ])
-                        ]
-                    ]),
-                    'documents'     => [
-                        $docusign->document([
-                            'document_base64' => base64_encode(file_get_contents($temp_pdf)),
-                            'name'            => 'PDF for sign' . ($pdf_count > 1 ? ' (' . $i . ')' : ''),
-                            'document_id'     => '1'
-                        ])
-                    ]
-                ]);
-
-                $coborrowerEnvelope = $docusign->envelopeDefinition([
-                    'status'        => 'sent',
-                    'email_subject' => 'Please sign this document',
-                    'email_blurb'   => 'Hi ' . $coborrower . '<br>Please sign the above document.<br>Thank You, Tyler Plack',
-                    'recipients'    => $docusign->recipients([
-                        'signers' => [
+                            ]),
                             $docusign->signer([
                                 'email' 	    => $coborrower_email,
                                 'name'  	    => $coborrower,
-                                'recipient_id'  => '1',
-                                'routing_order' => '1',
+                                'recipient_id'  => '2',
+                                'routing_order' => '2',
                                 'tabs'          => $docusign->tabs([
                                     'sign_here_tabs' => $coborrowerSigns,
                                     'date_signed_tabs' => $coborrowerDates,
@@ -666,12 +649,8 @@ class OCRController extends Controller
                     ]
                 ]);
 
-                if(!empty($borrowerSigns) || !empty($borrowerDates)) {
-                    $envelopeSummary = $docusign->envelopes->createEnvelope($borrowerEnvelope);
-                    error_log('Envelope ' . $envelopeSummary->getEnvelopeId() . ' with pdf for sign ' . $envelopeSummary->getStatus());
-                }
-                if(!empty($coborrowerSigns) || !empty($coborrowerDates)) {
-                    $envelopeSummary = $docusign->envelopes->createEnvelope($coborrowerEnvelope);
+                if(!empty($borrowerSigns) || !empty($borrowerDates) || !empty($coborrowerSigns) || !empty($coborrowerDates)) {
+                    $envelopeSummary = $docusign->envelopes->createEnvelope($envelope);
                     error_log('Envelope ' . $envelopeSummary->getEnvelopeId() . ' with pdf for sign ' . $envelopeSummary->getStatus());
                 }
 
