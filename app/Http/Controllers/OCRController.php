@@ -195,6 +195,7 @@ class OCRController extends Controller
 
                     $email = 'tyler@southrivermtg.com'; // Retrieve from User DB by officer name
                     $signHereTabs = [];
+                    $dateTabs = [];
 
                     for($j = $processed_pages + 1; $j <= $last_page; $j ++) {
                         $templateId = $pdf->importPage($j);
@@ -238,6 +239,12 @@ class OCRController extends Controller
                                     'x_position'  => $x_position,
                                     'y_position'  => $y_position
                                 ]));
+                                array_push($dateTabs, $docusign->date([
+                                    'document_id' => '1',
+                                    'page_number' => $rect['Page'] - $processed_pages,
+                                    'x_position'  => round($width * 0.75),
+                                    'y_position'  => $y_position + 20
+                                ]));
                             }
                         }
                     }
@@ -260,7 +267,8 @@ class OCRController extends Controller
                                     'recipient_id'  => '1',
                                     'routing_order' => '1',
                                     'tabs'          => $docusign->tabs([
-                                        'sign_here_tabs' => $signHereTabs
+                                        'sign_here_tabs' => $signHereTabs,
+                                        'date_signed_tabs' => $dateTabs,
                                     ])
                                 ])
                             ]
@@ -273,7 +281,6 @@ class OCRController extends Controller
                             ])
                         ]
                     ]);
-                    error_log(json_encode(ObjectSerializer::sanitizeForSerialization($envelopeDefinition->getRecipients())));
 
                     if(!empty($signHereTabs)) {
                         $envelopeSummary = $docusign->envelopes->createEnvelope($envelopeDefinition);
