@@ -355,7 +355,7 @@ class OCRController extends Controller
             $page_except = 0;
             foreach($pdf_parse as $page) {
                 if(isset($page['width']) && isset($page['height']) && isset($page['number'])) {
-                    if(!isset($page['text']) || empty($page['text'])) {
+                    if(!isset($page['text']) || empty($page['text']) || count($page['text']) < 50) {
                         if($page_type == 0)
                             array_push($needsOCR, $page['number']);
                         else
@@ -396,10 +396,14 @@ class OCRController extends Controller
                                 if($page_type == 0) {
                                     if($text === 'This!')
                                         $page_except = $page['number'];
-                                    if($text === 'Borrower' && $page_except !== $page['number'])
+                                    if($text === 'Borrower' && $page_except !== $page['number']) {
                                         $type = 'BORROWER';
-                                    else if(!$onlyborrower && $text === 'Co-Borrower' && $page_except !== $page['number'])
+                                        $type1 = 'BORROWER1';
+                                    }
+                                    else if(!$onlyborrower && $text === 'Co-Borrower' && $page_except !== $page['number']) {
                                         $type = 'COBORROWER';
+                                        $type1 = 'COBORROWER1';
+                                    }
                                     else
                                         continue;
                                 }
@@ -422,6 +426,14 @@ class OCRController extends Controller
                                     'type' => $type,
                                     'page' => $page['number'],
                                 ));
+                                if(isset($type1)) {
+                                    array_push($candidates, array(
+                                        'left' => 0.76,
+                                        'top' => $block['top'] / $page['height'],
+                                        'type' => $type1,
+                                        'page' => $page['number'],
+                                    ));
+                                }
                             }
                         }
                         if($page_type == 2)
@@ -553,14 +565,14 @@ class OCRController extends Controller
                             'left' => $rect['Rect']['Left'],
                             'top' => $rect['Rect']['Top'],
                             'type' => 'OCR_' . $type . '_SGF',
-                            'page' => $rect['Page'],
+                            'page' => $needsOCR[$rect['Page'] - 1],
                         ));
 
                         array_push($candidates, array(
                             'left' => $rect['Rect']['Left'] + 0.25,
                             'top' => $rect['Rect']['Top'],
                             'type' => 'OCR_' . $type . '_DAT',
-                            'page' => $rect['Page'],
+                            'page' => $needsOCR[$rect['Page'] - 1],
                         ));
                     }
                 }
@@ -612,6 +624,9 @@ class OCRController extends Controller
                         if($sign['type'] == 'BORROWER' || $sign['type'] == 'COBORROWER') {
                             $y_position = $y_position - 35;
                         }
+                        if($sign['type'] == 'BORROWER1' || $sign['type'] == 'COBORROWER1') {
+                            $y_position = $y_position - 15;
+                        }
                         if($sign['type'] == 'BORROWER_SGF' || $sign['type'] == 'COBORROWER_SGF') {
                             $y_position = $y_position - 10;
                         }
@@ -631,7 +646,7 @@ class OCRController extends Controller
                                 'x_position'  => $x_position,
                                 'y_position'  => $y_position
                             ]));
-                        } else if($sign['type'] == 'BOR_1_DAT' || $sign['type'] == 'BORROWER_DAT' || $sign['type'] == 'OCR_1_DAT') {
+                        } else if($sign['type'] == 'BOR_1_DAT' || $sign['type'] == 'BORROWER_DAT' || $sign['type'] == 'BORROWER1' || $sign['type'] == 'OCR_1_DAT') {
                             array_push($borrowerDates, $docusign->date([
                                 'document_id' => '1',
                                 'page_number' => $sign['page'] - $processed_pages,
@@ -645,7 +660,7 @@ class OCRController extends Controller
                                 'x_position'  => $x_position,
                                 'y_position'  => $y_position
                             ]));
-                        } else if($sign['type'] == 'BOR_2_DAT' || $sign['type'] == 'COBORROWER_DAT' || $sign['type'] == 'OCR_2_DAT') {
+                        } else if($sign['type'] == 'BOR_2_DAT' || $sign['type'] == 'COBORROWER_DAT' || $sign['type'] == 'COBORROWER1' || $sign['type'] == 'OCR_2_DAT') {
                             array_push($coborrowerDates, $docusign->date([
                                 'document_id' => '1',
                                 'page_number' => $sign['page'] - $processed_pages,
